@@ -1,0 +1,16 @@
+{
+  "name": "firebase-auth-nodejs",
+  "version": "1.0.0",
+  "description": "NodeJS backend demo for Firebase Authentication seminar",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "firebase-admin": "^12.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  }
+}

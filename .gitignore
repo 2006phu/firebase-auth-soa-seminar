@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+target/
+
+# Environment variables
+.env
+*.env.local
+
+# Firebase
+serviceAccountKey.json
+**/serviceAccountKey.json
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Build
+dist/
+build/
+*.class
+*.jar
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Internal Seminar Team Files (Not for public repo)
+docs/kich-ban-*.md
+docs/images/
