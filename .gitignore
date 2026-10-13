@@ -25,6 +25,10 @@ build/
 *.class
 *.jar
 
+# Firebase (giữ lại firebase.json và .firebaserc để CI/CD hoạt động)
+.firebase/
+firebase-debug.log
+
 # OS
 .DS_Store
 Thumbs.db
@@ -36,3 +40,4 @@ npm-debug.log*
 # Internal Seminar Team Files (Not for public repo)
 docs/kich-ban-*.md
 docs/images/
+docs/giai-thich-*.md
