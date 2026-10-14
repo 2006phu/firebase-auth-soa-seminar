@@ -24,6 +24,7 @@ export const callProtectedApi = async (baseUrl) => {
     const response = await axios.get(`${baseUrl}/api/protected`, {
       headers: {
         Authorization: `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true',
       },
     });
     return response.data;
@@ -40,7 +41,11 @@ export const callProtectedApi = async (baseUrl) => {
  */
 export const callPublicApi = async (baseUrl) => {
   try {
-    const response = await axios.get(`${baseUrl}/api/public`);
+    const response = await axios.get(`${baseUrl}/api/public`, {
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Error calling public API:', error);
@@ -59,6 +64,7 @@ export const getUserInfo = async (baseUrl) => {
     const response = await axios.get(`${baseUrl}/api/user-info`, {
       headers: {
         Authorization: `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true',
       },
     });
     return response.data;
