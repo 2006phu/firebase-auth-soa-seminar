@@ -13,6 +13,8 @@ export const getAuthToken = async () => {
   return await auth.currentUser.getIdToken(false);
 };
 
+const formatBaseUrl = (url) => (url ? url.trim().replace(/\/+$/, '') : '');
+
 /**
  * Calls a protected API endpoint by appending the Bearer token
  * @param {string} baseUrl - The base URL of the API
@@ -20,8 +22,9 @@ export const getAuthToken = async () => {
  */
 export const callProtectedApi = async (baseUrl) => {
   try {
+    const url = formatBaseUrl(baseUrl);
     const token = await getAuthToken();
-    const response = await axios.get(`${baseUrl}/api/protected`, {
+    const response = await axios.get(`${url}/api/protected`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'ngrok-skip-browser-warning': 'true',
@@ -41,7 +44,8 @@ export const callProtectedApi = async (baseUrl) => {
  */
 export const callPublicApi = async (baseUrl) => {
   try {
-    const response = await axios.get(`${baseUrl}/api/public`, {
+    const url = formatBaseUrl(baseUrl);
+    const response = await axios.get(`${url}/api/public`, {
       headers: {
         'ngrok-skip-browser-warning': 'true',
       },
@@ -60,8 +64,9 @@ export const callPublicApi = async (baseUrl) => {
  */
 export const getUserInfo = async (baseUrl) => {
   try {
+    const url = formatBaseUrl(baseUrl);
     const token = await getAuthToken();
-    const response = await axios.get(`${baseUrl}/api/user-info`, {
+    const response = await axios.get(`${url}/api/user-info`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'ngrok-skip-browser-warning': 'true',
