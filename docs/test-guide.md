@@ -472,6 +472,98 @@ jobs:
 
 ---
 
+---
+
+## Test Case 10: Tích Hợp Đa Hệ Thống OAuth2 & Firebase (Cross-System Federated Identity)
+
+### Mục tiêu:
+Kiểm chứng cơ chế xác thực phân tán trong kiến trúc SOA: Chỉ với **1 lần người dùng click "Đăng nhập với Google"**, danh tính được chuyển tiếp và công nhận đồng thời trên cả 2 hệ thống độc lập:
+1. **Frontend & Backend Firebase:** Cấp phát Firebase ID Token (thuật toán RS256) và lưu danh tính trên Google Cloud.
+2. **Backend OAuth2 của Quân (`soa-auth-system`):** Nhận Google ID Token gốc, xác thực chữ ký số bằng Google Public Keys, tự động tạo tài khoản trong cơ sở dữ liệu (SQL Server/H2), và phát hành Token JWT riêng (ký HMAC-SHA384).
+
+---
+
+### Chuẩn bị môi trường:
+1. **Khởi chạy Backend của bạn:** Cổng 8000 (FastAPI) hoặc 8080 (Spring Boot).
+2. **Khởi chạy Backend của Quân:** Cổng 8081 (nằm trong thư mục `backend-quan-oauth2/`).
+   ```bash
+   cd backend-quan-oauth2
+   .\mvnw.cmd spring-boot:run
+   ```
+   *(Kiểm tra server sống: `curl.exe http://localhost:8081/api/auth/google/url` $\rightarrow$ Trả về `200 OK`).*
+3. **Khởi chạy Frontend:** Cổng 5173 (`npm run dev`).
+
+---
+
+### Các bước thực hiện:
+
+#### Bước 1: Mở F12 Network để bắt trọn gói tin
+1. Mở trình duyệt vào trang đăng nhập: `http://localhost:5173/login`.
+2. Bấm phím **F12** $\rightarrow$ Chọn tab **Network** $\rightarrow$ Bấm nút gạch chéo 🚫 để xóa sạch log cũ.
+
+#### Bước 2: Bấm Đăng nhập với Google
+1. Bấm nút **"Đăng nhập với Google"** $\rightarrow$ Chọn tài khoản Gmail của bạn trên cửa sổ popup.
+2. Ngay khi popup đóng lại và chuyển vào trang Dashboard, hãy quan sát ngay tab **Network**:
+   - **Gói tin 1 (Firebase):** Request gửi đến `identitytoolkit.googleapis.com` $\rightarrow$ Google trả về `idToken` của Firebase.
+   - **Gói tin 2 (OAuth2 của Quân):** Request gửi đến `http://localhost:8081/api/auth/google/firebase-token` mang payload:
+     ```json
+     {
+       "idToken": "eyJhbGciOiJSUzI1NiIs..."
+     }
+     ```
+     Response trả về mã **`200 OK`** với dữ liệu:
+     ```json
+     {
+       "success": true,
+       "message": "Đồng bộ danh tính Firebase vào Database thành công!",
+       "data": {
+         "accessToken": "eyJhbGciOiJIUzM4NCIs...",
+         "email": "your_email@gmail.com",
+         "role": "ROLE_PERSONAL"
+       }
+     }
+     ```
+
+#### Bước 3: Quan sát 2 Token hiển thị song song trên Dashboard
+1. **Khối màu xanh/indigo phía trên (Firebase Token):**
+   - Bấm **"Giải mã trên jwt.io"**:
+     - Header: `{"alg": "RS256"}` (Mã hóa bất đối xứng của Google).
+     - Payload: `iss: "https://securetoken.google.com/soa-firebase-demo-31877"`.
+2. **Khối màu tím phía dưới (OAuth2 Cross-System Token của Quân):**
+   - Xuất hiện tiêu đề: **"Đồng Bộ Đa Hệ Thống: OAuth2 Token"**.
+   - Badge quyền hạn: `ROLE_PERSONAL`.
+   - Bấm **"Giải mã trên jwt.io"**:
+     - Header: `{"alg": "HS384"}` (Mã hóa đối xứng HMAC-SHA384 của Quân).
+     - Payload: `iss: "soa-auth-system"`, `role: "ROLE_PERSONAL"`, `email: "..."`.
+
+#### Bước 4: Kiểm tra dữ liệu tự động ghi vào 2 Cơ sở dữ liệu (Database Verification)
+1. **Kiểm tra Cơ sở dữ liệu của Quân:**
+   - Mở tab mới trên trình duyệt truy cập endpoint xem nhanh Database:  
+     👉 **`http://localhost:8081/api/users/database-viewer`**
+   - **Kết quả mong đợi:** Thấy ngay danh sách `users` có 1 bản ghi mới được tạo tự động:
+     ```json
+     {
+       "database": "google_login_db",
+       "totalUsers": 1,
+       "users": [
+         {
+           "email": "your_email@gmail.com",
+           "fullName": "Tên Của Bạn",
+           "accountType": "GOOGLE",
+           "role": "ROLE_PERSONAL"
+         }
+       ]
+     }
+     ```
+   - *(Hoặc truy cập H2 Console tại `http://localhost:8081/h2-console`, JDBC URL `jdbc:h2:mem:google_login_db`, bấm Connect $\rightarrow$ chạy lệnh `SELECT * FROM USERS;` để thấy trực tiếp dòng dữ liệu trong bảng).*
+2. **Kiểm tra Cơ sở dữ liệu Firebase Authentication:**
+   - Mở [Firebase Console](https://console.firebase.google.com/) $\rightarrow$ Chọn project `soa-firebase-demo-31877` $\rightarrow$ Tab **Authentication** $\rightarrow$ **Users**.
+   - **Kết quả mong đợi:** Thấy cùng địa chỉ email đó xuất hiện trong danh sách người dùng với Provider là biểu tượng Google G.
+
+👉 **Kết luận:** Hệ thống đã chứng minh thành công kiến trúc SOA: Một hành vi người dùng duy nhất tự động phân phối danh tính và ghi dữ liệu đồng thời vào 2 hệ thống độc lập, 2 cơ sở dữ liệu riêng biệt.
+
+---
+
 ## Bảng Checklist Tổng Kết Nghiệm Thu
 
 | STT | Hạng mục kiểm thử | Kết quả mong đợi | Đánh giá |
@@ -490,6 +582,7 @@ jobs:
 | 12 | CI/CD Runtime Error (9.2) | Build xanh nhưng Web trắng bóc $\rightarrow$ Bật F12 Console thấy ReferenceError | ⬜ Đạt |
 | 13 | CI/CD Fail-Safe (9.3) | Lỗi build $\rightarrow$ CI/CD báo đỏ ❌ chặn deploy $\rightarrow$ Web vẫn chạy bình thường | ⬜ Đạt |
 | 14 | Firebase Release History | Đối soát danh sách deploy, snapshot phiên bản và nút Rollback | ⬜ Đạt |
+| 15 | Tích hợp Đa hệ thống (TC 10) | 1 click Google $\rightarrow$ 2 request song song $\rightarrow$ cấp 2 JWT (RS256 & HS384) $\rightarrow$ ghi 2 DB | ⬜ Đạt |
 
 
 
