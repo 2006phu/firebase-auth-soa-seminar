@@ -14,7 +14,8 @@ Tài liệu này cung cấp kịch bản kiểm thử toàn diện từng bướ
 7. [Test Case 6: Kiểm thử bảo mật trực tiếp bằng cURL / PowerShell](#test-case-6-kiểm-thử-bảo-mật-trực-tiếp-bằng-curl--powershell)
 8. [Test Case 7: Kiểm tra Route Guard & Đăng xuất](#test-case-7-kiểm-tra-route-guard--đăng-xuất)
 9. [Test Case 8: Đối chiếu trên Firebase Console](#test-case-8-đối-chiếu-trên-firebase-console)
-10. [Bảng Checklist Tổng Kết Nghiệm Thu](#bảng-checklist-tổng-kết-nghiệm-thu)
+10. [Test Case 9: Kiểm thử Tự động hóa CI/CD với 3 Tình Huống Thực Chiến & Firebase Hosting](#test-case-9-kiểm-thử-tự-động-hóa-cicd-với-3-tình-huống-thực-chiến--firebase-hosting)
+11. [Bảng Checklist Tổng Kết Nghiệm Thu](#bảng-checklist-tổng-kết-nghiệm-thu)
 
 ---
 
@@ -227,13 +228,13 @@ curl.exe -i -X GET http://localhost:8000/api/protected -H "Authorization: Bearer
 ### 6.4. Gọi endpoint Protected với Token THẬT (Copy từ Dashboard)
 ```powershell
 $TOKEN = "PASTE_TOKEN_VUA_COPY_O_DASHBOARD_VAO_DAY"
-curl.exe -X GET http://localhost:8000/api/protected -H "Authorization: Bearer $TOKEN"
+curl.exe -X GET http://localhost:8000/api/protected -H "Authorization: Bearer curl.exe -X GET http://localhost:8000/api/user-info -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjkwNGIwZjkxYmU2ZWIwODY3ZGFiYmFhYjU4N2RmYzJlMzNmMDBhMjQiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoicGjDuiBsw6oiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jSUNYb0JSS2JWU04yTDJPTlRJNGw0cFBSd3V3V2EzWkhiQnpyNFVjMmhtd1VlX3FnPXM5Ni1jIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL3NvYS1maXJlYmFzZS1kZW1vLTMxODc3IiwiYXVkIjoic29hLWZpcmViYXNlLWRlbW8tMzE4NzciLCJhdXRoX3RpbWUiOjE3OTE4NTg5MjcsInVzZXJfaWQiOiJJU0VOWkNKVUZwUXViMXJtRDdRNFZadG82ZHkxIiwic3ViIjoiSVNFTlpDSlVGcFF1YjFybUQ3UTRWWnRvNmR5MSIsImlhdCI6MTc5MTg1ODkyNywiZXhwIjoxNzkxODYyNTI3LCJlbWFpbCI6ImxlcGh1a2FrYXNoaTNAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZ29vZ2xlLmNvbSI6WyIxMDUzNTI2NjQ5NjUwOTI0MDAzNjAiXSwiZW1haWwiOlsibGVwaHVrYWthc2hpM0BnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJnb29nbGUuY29tIn19.Zv1L9HyLeZTpn5JHsHG8oYRg0g_QEcDLoKxnwlHXoZlDWhfR1sYX0W2QfMfQqOlK4K_375imHpRw_DmuBWRqynmKrwenPVP-QkgYxoucaZGSv6HTfoMz6BFidgq3bpnJszprYG0vLOUawifAPfkuyj_Vr_9fmmfl-O6H0RMGE0yIlHVHblv0znKo9WOb7m2WAT5GhbNDfQyKYD48ieVm5jJeRbjgagWx5VWQdJeQlhA1xq2WpdRe4m2oRtAiit6l2ZJruDgmbWyR5WFjeI3-dQJbhqKQzMKGpnyihZGC6Vejqab76OY3okf6HT4XAFMRjsL-UtJZwsqmYkHeit0mgQ"
 ```
 👉 **Kết quả mong đợi:** Trả về **HTTP 200 OK** với UID và Email chính xác của user.
 
 ### 6.5. Kiểm tra endpoint lấy full user info
 ```powershell
-curl.exe -X GET http://localhost:8000/api/user-info -H "Authorization: Bearer $TOKEN"
+curl.exe -X GET http://localhost:8000/api/user-info -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjkwNGIwZjkxYmU2ZWIwODY3ZGFiYmFhYjU4N2RmYzJlMzNmMDBhMjQiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoicGjDuiBsw6oiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jSUNYb0JSS2JWU04yTDJPTlRJNGw0cFBSd3V3V2EzWkhiQnpyNFVjMmhtd1VlX3FnPXM5Ni1jIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL3NvYS1maXJlYmFzZS1kZW1vLTMxODc3IiwiYXVkIjoic29hLWZpcmViYXNlLWRlbW8tMzE4NzciLCJhdXRoX3RpbWUiOjE3OTE4NTg5MjcsInVzZXJfaWQiOiJJU0VOWkNKVUZwUXViMXJtRDdRNFZadG82ZHkxIiwic3ViIjoiSVNFTlpDSlVGcFF1YjFybUQ3UTRWWnRvNmR5MSIsImlhdCI6MTc5MTg1ODkyNywiZXhwIjoxNzkxODYyNTI3LCJlbWFpbCI6ImxlcGh1a2FrYXNoaTNAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZ29vZ2xlLmNvbSI6WyIxMDUzNTI2NjQ5NjUwOTI0MDAzNjAiXSwiZW1haWwiOlsibGVwaHVrYWthc2hpM0BnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJnb29nbGUuY29tIn19.Zv1L9HyLeZTpn5JHsHG8oYRg0g_QEcDLoKxnwlHXoZlDWhfR1sYX0W2QfMfQqOlK4K_375imHpRw_DmuBWRqynmKrwenPVP-QkgYxoucaZGSv6HTfoMz6BFidgq3bpnJszprYG0vLOUawifAPfkuyj_Vr_9fmmfl-O6H0RMGE0yIlHVHblv0znKo9WOb7m2WAT5GhbNDfQyKYD48ieVm5jJeRbjgagWx5VWQdJeQlhA1xq2WpdRe4m2oRtAiit6l2ZJruDgmbWyR5WFjeI3-dQJbhqKQzMKGpnyihZGC6Vejqab76OY3okf6HT4XAFMRjsL-UtJZwsqmYkHeit0mgQ"
 ```
 👉 **Kết quả:** Trả về toàn bộ payload đã decode bao gồm `name`, `email_verified`, `picture`, `auth_time`.
 
@@ -272,6 +273,60 @@ Xác minh tài khoản đã đăng ký được lưu trữ an toàn trên hạ t
 
 ---
 
+## Test Case 9: Kiểm thử Tự động hóa CI/CD với 3 Tình Huống Thực Chiến & Firebase Hosting
+
+### Mục tiêu:
+Kiểm chứng tính ổn định, độ sẵn sàng cao (High Availability) và cơ chế phòng vệ Fail-Safe của pipeline DevOps tự động hóa GitHub Actions kết hợp Firebase Hosting.
+
+---
+
+### 🌟 Tình huống 9.1: Triển khai Thành công Mỹ mãn (Happy Path)
+* **Thao tác:**
+  1. Mở file `frontend/src/components/Login.jsx` trên GitHub Web, sửa dòng tiêu đề:
+     `Đăng nhập vào tài khoản` $\rightarrow$ `Đăng nhập vào tài khoản (TDTU LIVE DEMO 🚀)`.
+  2. Bấm **Commit changes**.
+* **Kết quả quan sát:**
+  - Tab **GitHub Actions** xuất hiện tiến trình với **Animation vòng tròn màu vàng xoay liên tục**.
+  - Toàn bộ các node `Checkout` $\rightarrow$ `Setup Node` $\rightarrow$ `Install` $\rightarrow$ `Build` $\rightarrow$ `Deploy` đổi sang **Dấu tích xanh ✅** (~1-2 phút).
+  - Mở trang [https://soa-firebase-demo-31877.web.app/login](https://soa-firebase-demo-31877.web.app/login) bấm **F5**: Tiêu đề lập tức đổi sang chữ mới mà không cần thao tác deploy thủ công.
+
+---
+
+### ⚠️ Tình huống 9.2: Lỗi Runtime - "Build Tích Xanh nhưng Web Trắng Bóc"
+* **Bản chất kỹ thuật:** Trong JavaScript thuần, khai báo biến không hợp lệ (như một từ đứng độc lập không khai báo) không vi phạm cú pháp đóng gói nên `npm run build` vẫn pass (Build-time Success), nhưng khi trình duyệt thực thi sẽ quăng `ReferenceError` làm React sụp đổ.
+* **Thao tác:**
+  1. Thêm dòng `dhsfkjsndkjfndskj` vào dòng 6 của `frontend/src/components/Login.jsx`.
+  2. Bấm **Commit changes**.
+* **Kết quả quan sát:**
+  - GitHub Actions vẫn báo **Tích xanh ✅ (Success)**.
+  - Nhưng khi F5 trang [https://soa-firebase-demo-31877.web.app/login](https://soa-firebase-demo-31877.web.app/login): Màn hình bị **TRẮNG BÓC (White Screen of Death)**.
+  - Bấm **F12** $\rightarrow$ Tab **Console**: Thấy rõ lỗi đỏ: `Uncaught ReferenceError: dhsfkjsndkjfndskj is not defined`.
+  - *Ý nghĩa:* Minh họa lý do doanh nghiệp cần bổ sung automated tests (Jest/Vitest) hoặc TypeScript vào pipeline CI/CD.
+
+---
+
+### 🛡️ Tình huống 9.3: Lỗi Build-time & Cơ Chế Fail-Safe - "CI/CD Chặn Đứng, Web Vẫn Sống"
+* **Bản chất kỹ thuật:** Khi gặp lỗi biên dịch thực sự (Compile-time Error / Missing Module), pipeline CI/CD sẽ lập tức ngắt quy trình (Fail-Safe), hủy bước Deploy để bảo vệ người dùng.
+* **Thao tác:**
+  1. Sửa dòng lỗi trên thành: `import ThuVienAo from './FileKhongTonTai';`.
+  2. Bấm **Commit changes**.
+* **Kết quả quan sát:**
+  - Tab GitHub Actions: Bước `Build frontend (npm run build)` văng lỗi **DẤU NHÂN ĐỎ ❌ (Failed)** với thông báo: `Could not resolve "./FileKhongTonTai"`.
+  - Bước `Deploy to Firebase Hosting` bị **GẠCH XÁM (SKIPPED - BỊ CHẶN HOÀN TOÀN)**!
+  - F5 trang [https://soa-firebase-demo-31877.web.app/login](https://soa-firebase-demo-31877.web.app/login): Trang web **VẪN HOẠT ĐỘNG BÌNH THƯỜNG**, không bị sập hay gián đoạn dịch vụ nhờ Firebase giữ nguyên phiên bản ổn định trước đó (Zero-Downtime).
+
+---
+
+### 🔍 Thao tác Đối Soát Trên Firebase Console:
+1. Mở [Firebase Console](https://console.firebase.google.com/) $\rightarrow$ Chọn project `soa-firebase-demo-31877`.
+2. Vào **Hosting & Serverless** $\rightarrow$ **Hosting**.
+3. Cuộn đến bảng **Release history (Lịch sử phát hành)**:
+   - Thấy danh sách từng bản build do `github-actions[bot]` đẩy lên.
+   - Bản hiện tại mang nhãn `Current`.
+   - Bấm vào menu 3 chấm (⋮) để quan sát tính năng **Rollback** (khôi phục bản cũ tức thì).
+
+---
+
 ## Bảng Checklist Tổng Kết Nghiệm Thu
 
 | STT | Hạng mục kiểm thử | Kết quả mong đợi | Đánh giá |
@@ -286,7 +341,12 @@ Xác minh tài khoản đã đăng ký được lưu trữ an toàn trên hạ t
 | 8 | Protected Route | Chặn người chưa đăng nhập truy cập vào `/dashboard` | ⬜ Đạt |
 | 9 | Đăng xuất | Xóa session, điều hướng về `/login` | ⬜ Đạt |
 | 10 | Firebase Console Sync | User hiển thị đầy đủ trong tab Authentication | ⬜ Đạt |
+| 11 | CI/CD Happy Path (9.1) | Commit code đúng $\rightarrow$ Animation xoay $\rightarrow$ Tích xanh ✅ $\rightarrow$ Web cập nhật | ⬜ Đạt |
+| 12 | CI/CD Runtime Error (9.2) | Build xanh nhưng Web trắng bóc $\rightarrow$ Bật F12 Console thấy ReferenceError | ⬜ Đạt |
+| 13 | CI/CD Fail-Safe (9.3) | Lỗi build $\rightarrow$ CI/CD báo đỏ ❌ chặn deploy $\rightarrow$ Web vẫn chạy bình thường | ⬜ Đạt |
+| 14 | Firebase Release History | Đối soát danh sách deploy, snapshot phiên bản và nút Rollback | ⬜ Đạt |
 
 ---
 💡 **Mẹo khi thuyết trình Seminar:**
-Bạn có thể trình diễn theo đúng thứ tự từ **Test Case 1 -> Test Case 6**: Vừa thao tác trực quan trên trình duyệt (Demo cho cả lớp thấy), vừa mở terminal chạy cURL (minh họa góc nhìn kỹ thuật Backend/SOA). Kịch bản này đáp ứng trọn vẹn điểm số phần **Hands-on Demo (2.0đ)** và **HOW - Architecture & Integration (2.5đ)**!
+Bạn có thể trình diễn theo đúng thứ tự từ **Test Case 1 -> Test Case 6**: Vừa thao tác trực quan trên trình duyệt (Demo cho cả lớp thấy), vừa mở terminal chạy cURL (minh họa góc nhìn kỹ thuật Backend/SOA). Tiếp theo chuyển sang **Test Case 9**: Biểu diễn bộ 3 tình huống CI/CD thực chiến và mở Firebase Hosting Release History. Kịch bản này đáp ứng trọn vẹn điểm số phần **Hands-on Demo (2.0đ)** và **HOW - Architecture & Integration (2.5đ)**!
+
