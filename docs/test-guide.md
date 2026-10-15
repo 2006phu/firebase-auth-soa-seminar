@@ -537,25 +537,45 @@ Kiểm chứng cơ chế xác thực phân tán trong kiến trúc SOA: Chỉ v�
      - Payload: `iss: "soa-auth-system"`, `role: "ROLE_PERSONAL"`, `email: "..."`.
 
 #### Bước 4: Kiểm tra dữ liệu tự động ghi vào 2 Cơ sở dữ liệu (Database Verification)
-1. **Kiểm tra Cơ sở dữ liệu của Quân:**
-   - Mở tab mới trên trình duyệt truy cập endpoint xem nhanh Database:  
+
+1. **Kiểm tra Cơ sở dữ liệu của Quân (Xem trực tiếp trên trình duyệt - Cách tối ưu nhất):**
+   - Mở một tab mới trên trình duyệt, truy cập trực tiếp vào đường dẫn kiểm tra Database:  
      👉 **`http://localhost:8081/api/users/database-viewer`**
-   - **Kết quả mong đợi:** Thấy ngay danh sách `users` có 1 bản ghi mới được tạo tự động:
+   - **Kết quả mong đợi:** Toàn bộ bản chụp dữ liệu sống từ Database của Quân sẽ hiển thị trực tiếp dưới dạng JSON mà không cần mở bất kỳ phần mềm quản trị database nào:
      ```json
      {
-       "database": "google_login_db",
-       "totalUsers": 1,
-       "users": [
-         {
-           "email": "your_email@gmail.com",
-           "fullName": "Tên Của Bạn",
-           "accountType": "GOOGLE",
-           "role": "ROLE_PERSONAL"
-         }
-       ]
+       "success": true,
+       "message": "Dữ liệu trực tiếp từ SQL Server (Chỉ cấp quyền cho người dùng có Bearer Token hợp lệ)",
+       "data": {
+         "database": "google_login_db",
+         "totalUsers": 1,
+         "totalIdentities": 1,
+         "users": [
+           {
+             "id": 1,
+             "email": "your_email@gmail.com",
+             "fullName": "your_name",
+             "role": "ROLE_USER",
+             "accountType": "PERSONAL",
+             "createdAt": "2026-10-15 16:55:55"
+           }
+         ],
+         "identities": [
+           {
+             "id": 1,
+             "provider": "GOOGLE",
+             "providerEmail": "your_email@gmail.com",
+             "providerUserId": "105352664965092400360",
+             "linkedAt": "2026-10-15 16:55:56"
+           }
+         ]
+       }
      }
      ```
-   - *(Hoặc truy cập H2 Console tại `http://localhost:8081/h2-console`, JDBC URL `jdbc:h2:mem:google_login_db`, bấm Connect $\rightarrow$ chạy lệnh `SELECT * FROM USERS;` để thấy trực tiếp dòng dữ liệu trong bảng).*
+   - **Ý nghĩa kiểm thử:** Bằng chứng cho thấy khi người dùng đăng nhập bằng Google trên giao diện, Backend của Quân đã:
+     - Tự động tạo 1 bản ghi mới trong bảng `users` với `id: 1`, `role: ROLE_USER`, `accountType: PERSONAL`.
+     - Tự động liên kết tài khoản Google trong bảng `user_identities` với `providerUserId` tương ứng.
+
 2. **Kiểm tra Cơ sở dữ liệu Firebase Authentication:**
    - Mở [Firebase Console](https://console.firebase.google.com/) $\rightarrow$ Chọn project `soa-firebase-demo-31877` $\rightarrow$ Tab **Authentication** $\rightarrow$ **Users**.
    - **Kết quả mong đợi:** Thấy cùng địa chỉ email đó xuất hiện trong danh sách người dùng với Provider là biểu tượng Google G.
