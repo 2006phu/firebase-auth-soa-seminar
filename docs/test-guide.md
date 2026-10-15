@@ -278,6 +278,8 @@ Xác minh tài khoản đã đăng ký được lưu trữ an toàn trên hạ t
 ### Mục tiêu:
 Kiểm chứng tính ổn định, độ sẵn sàng cao (High Availability) và cơ chế phòng vệ Fail-Safe của pipeline DevOps tự động hóa GitHub Actions kết hợp Firebase Hosting.
 
+> 📖 **Dành cho các bạn muốn tự thực hành từ con số 0:** Nhóm đã chuẩn bị tài liệu hướng dẫn step-by-step tại [Hướng dẫn tự thiết lập CI/CD GitHub Actions & Firebase Hosting](huong-dan-thiet-lap-cicd-github.md).
+
 ---
 
 ### 🌟 Tình huống 9.1: Triển khai Thành công Mỹ mãn (Happy Path)

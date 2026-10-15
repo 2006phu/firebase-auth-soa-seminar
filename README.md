@@ -61,6 +61,7 @@
 
 * **Địa chỉ Website chính thức (Live Cloud):** [https://soa-firebase-demo-31877.web.app](https://soa-firebase-demo-31877.web.app)
 * **Tệp cấu hình Workflow:** [`.github/workflows/firebase-hosting-merge.yml`](.github/workflows/firebase-hosting-merge.yml)
+* **📖 Hướng dẫn tự thiết lập Step-by-Step từ A-Z:** [Tài liệu hướng dẫn CI/CD GitHub Actions & Firebase Hosting](docs/huong-dan-thiet-lap-cicd-github.md)
 
 ### Quy trình hoạt động (Workflow Pipeline):
 ```text
