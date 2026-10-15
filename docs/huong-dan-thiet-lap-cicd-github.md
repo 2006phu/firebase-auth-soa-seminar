@@ -87,27 +87,45 @@
 1. Truy cập kho mã nguồn của bạn trên GitHub: `https://github.com/<tai-khoan>/<repo-cua-ban>`.
 2. Bấm vào tab **Settings** (Cài đặt) trên thanh menu ngang.
 3. Ở cột bên trái, tìm mục **Security** $\rightarrow$ chọn **Secrets and variables** $\rightarrow$ chọn **Actions**.
-4. Bấm nút màu xanh **"New repository secret"** để thêm lần lượt các Secret sau:
+4. Bấm nút màu xanh **"New repository secret"** để thêm lần lượt **8 Secrets** sau:
 
-| Tên Secret (Name) | Giá trị cần điền (Value) |
+#### 📍 Chi tiết cách lấy từng giá trị (Value) để không bị nhầm lẫn:
+
+| Tên Secret (Name) | Nơi tìm chính xác để copy giá trị (Value) |
 |---|---|
-| **`FIREBASE_SERVICE_ACCOUNT`** | Dán **toàn bộ nội dung file JSON** đã copy ở Bước 2. |
-| **`VITE_FIREBASE_API_KEY`** | Lấy từ file `.env` Frontend của bạn. |
-| **`VITE_FIREBASE_AUTH_DOMAIN`** | Ví dụ: `your-project.firebaseapp.com`. |
-| **`VITE_FIREBASE_PROJECT_ID`** | ID dự án Firebase của bạn. |
-| **`VITE_FIREBASE_STORAGE_BUCKET`**| Ví dụ: `your-project.firebasestorage.app`. |
-| **`VITE_FIREBASE_MESSAGING_SENDER_ID`** | Chuỗi số Sender ID từ Firebase. |
-| **`VITE_FIREBASE_APP_ID`** | App ID từ Firebase. |
-| **`VITE_API_BASE_URL`** | URL backend mặc định (hoặc link ngrok `https://xxx.ngrok-free.app`). |
+| **`FIREBASE_SERVICE_ACCOUNT`** | Mở tệp JSON vừa tải về ở **Bước 2** bằng Notepad/VS Code $\rightarrow$ bấm `Ctrl + A` $\rightarrow$ `Ctrl + C` và dán trọn vẹn toàn bộ ruột file vào đây. |
+| **`VITE_FIREBASE_API_KEY`** | Vào Firebase Console $\rightarrow$ Project settings ⚙️ $\rightarrow$ tab **General** $\rightarrow$ cuộn xuống mục **Your apps** $\rightarrow$ xem dòng `apiKey: "AIzaSy..."` (chỉ copy chuỗi trong ngoặc kép). |
+| **`VITE_FIREBASE_AUTH_DOMAIN`** | Cùng vị trí trên, copy dòng `authDomain: "xxx.firebaseapp.com"`. |
+| **`VITE_FIREBASE_PROJECT_ID`** | Cùng vị trí trên, copy dòng `projectId: "soa-firebase-demo-31877"`. |
+| **`VITE_FIREBASE_STORAGE_BUCKET`**| Cùng vị trí trên, copy dòng `storageBucket: "xxx.firebasestorage.app"`. |
+| **`VITE_FIREBASE_MESSAGING_SENDER_ID`** | Cùng vị trí trên, copy dòng `messagingSenderId: "186675384660"`. |
+| **`VITE_FIREBASE_APP_ID`** | Cùng vị trí trên, copy dòng `appId: "1:186675...:web:..."`. |
+| **`VITE_API_BASE_URL`** | URL API Backend của bạn: Điền `http://localhost:8080` (nếu chạy local) hoặc dán link HTTPS của ngrok (ví dụ `https://porcupine-joystick-unlocked.ngrok-free.dev`). |
+
+> 💡 **Mẹo:** Nếu trong dự án bạn đã có sẵn file `frontend/.env`, bạn chỉ cần mở file đó lên là có sẵn trọn bộ 7 biến `VITE_FIREBASE_*` và `VITE_API_BASE_URL` để copy sang trong 30 giây!
 
 ---
 
 ### BƯỚC 4: Tạo Tệp Kịch Bản GitHub Actions Workflow
 
-1. Tại thư mục gốc của dự án, tạo cây thư mục và file sau:
-   👉 `.github/workflows/firebase-hosting-merge.yml`
+> ❓ **Câu hỏi thường gặp:** *"Bước này trên GitHub có sẵn file không hay phải tạo thủ công?"*  
+> 👉 **Trả lời:** File này **KHÔNG CÓ SẴN TRÊN GITHUB MẶC ĐỊNH**, bạn **PHẢI TẠO THỦ CÔNG 1 LẦN DUY NHẤT**. Bạn có thể chọn 1 trong 2 cách sau:
 
-2. Dán toàn bộ nội dung sau vào file:
+* **Cách 1 (Làm trực tiếp trên Web GitHub - Dễ nhất, không cần mở máy):**
+  1. Vào trang chính Repo của bạn trên GitHub.
+  2. Bấm nút **"Add file"** (góc trên bên phải) $\rightarrow$ chọn **"Create new file"**.
+  3. Tại ô nhập tên file, gõ chính xác:  
+     👉 `.github/workflows/firebase-hosting-merge.yml`  
+     *(Khi bạn gõ dấu `/`, GitHub sẽ tự động tạo thư mục con `.github` và `workflows` cho bạn).*
+  4. Dán toàn bộ nội dung code YAML bên dưới vào.
+  5. Cuộn xuống bấm nút xanh **"Commit changes..."** $\rightarrow$ chọn **Commit changes**.
+
+* **Cách 2 (Tạo trên máy tính qua VS Code):**
+  1. Tại thư mục gốc của dự án, tạo thư mục `.github`, bên trong tạo thư mục `workflows`, và tạo file tên `firebase-hosting-merge.yml`.
+  2. Dán nội dung YAML bên dưới vào và lưu lại.
+  3. Mở terminal gõ: `git add .` $\rightarrow$ `git commit -m "add workflow"` $\rightarrow$ `git push origin main`.
+
+#### 📄 Nội dung code YAML cần dán vào file:
 
 ```yaml
 name: Deploy to Firebase Hosting on merge
