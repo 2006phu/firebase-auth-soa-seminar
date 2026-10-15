@@ -346,7 +346,5 @@ Kiểm chứng tính ổn định, độ sẵn sàng cao (High Availability) và
 | 13 | CI/CD Fail-Safe (9.3) | Lỗi build $\rightarrow$ CI/CD báo đỏ ❌ chặn deploy $\rightarrow$ Web vẫn chạy bình thường | ⬜ Đạt |
 | 14 | Firebase Release History | Đối soát danh sách deploy, snapshot phiên bản và nút Rollback | ⬜ Đạt |
 
----
-💡 **Mẹo khi thuyết trình Seminar:**
-Bạn có thể trình diễn theo đúng thứ tự từ **Test Case 1 -> Test Case 6**: Vừa thao tác trực quan trên trình duyệt (Demo cho cả lớp thấy), vừa mở terminal chạy cURL (minh họa góc nhìn kỹ thuật Backend/SOA). Tiếp theo chuyển sang **Test Case 9**: Biểu diễn bộ 3 tình huống CI/CD thực chiến và mở Firebase Hosting Release History. Kịch bản này đáp ứng trọn vẹn điểm số phần **Hands-on Demo (2.0đ)** và **HOW - Architecture & Integration (2.5đ)**!
+
 
