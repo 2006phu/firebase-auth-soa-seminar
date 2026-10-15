@@ -41,3 +41,7 @@ npm-debug.log*
 docs/kich-ban-*.md
 docs/images/
 docs/giai-thich-*.md
+
+# Cloned partner project
+backend-quan-oauth2/
+
