@@ -1,6 +1,7 @@
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import { syncToOAuth2Backend } from '../services/api';
 
 const GoogleSignIn = () => {
   const navigate = useNavigate();
@@ -8,7 +9,19 @@ const GoogleSignIn = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+
+      // Lấy Google ID Token gốc (JWT do GOOGLE ký bằng RSA-256)
+      // Đây là thứ mà backend OAuth2 của Quân có thể verify trực tiếp
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      if (credential && credential.idToken) {
+        // Gửi sang backend OAuth2 của Quân để đồng bộ tài khoản vào SQL Server
+        // Không await để không block luồng đăng nhập Firebase
+        syncToOAuth2Backend(credential.idToken).catch((err) =>
+          console.warn('OAuth2 sync skipped:', err.message)
+        );
+      }
+
       navigate('/dashboard');
     } catch (error) {
       console.error('Lỗi khi đăng nhập bằng Google:', error);

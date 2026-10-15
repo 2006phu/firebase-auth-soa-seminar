@@ -7,6 +7,7 @@ import { getAuthToken, callProtectedApi, callPublicApi } from '../services/api';
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState('');
+  const [quanAuth, setQuanAuth] = useState(null);
   const [backendUrl, setBackendUrl] = useState(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080');
   const [apiResponse, setApiResponse] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -31,6 +32,14 @@ const Dashboard = () => {
           console.error("Lỗi lấy token:", error);
         }
       }
+
+      // Kiểm tra token đã đồng bộ từ Backend OAuth2 của Quân
+      const qJwt = localStorage.getItem('quan_oauth2_jwt');
+      const qEmail = localStorage.getItem('quan_oauth2_email');
+      const qRole = localStorage.getItem('quan_oauth2_role');
+      if (qJwt) {
+        setQuanAuth({ token: qJwt, email: qEmail, role: qRole });
+      }
     };
     
     fetchUserAndToken();
@@ -39,6 +48,9 @@ const Dashboard = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      localStorage.removeItem('quan_oauth2_jwt');
+      localStorage.removeItem('quan_oauth2_email');
+      localStorage.removeItem('quan_oauth2_role');
       navigate('/login');
     } catch (error) {
       console.error('Lỗi khi đăng xuất:', error);
@@ -48,6 +60,13 @@ const Dashboard = () => {
   const copyToClipboard = () => {
     navigator.clipboard.writeText(token);
     alert('Đã copy token vào clipboard!');
+  };
+
+  const copyQuanToken = () => {
+    if (quanAuth?.token) {
+      navigator.clipboard.writeText(quanAuth.token);
+      alert('Đã copy OAuth2 Token của Quân vào clipboard!');
+    }
   };
 
   const handleCallProtected = async () => {
@@ -147,6 +166,59 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* OAuth2 Cross-System Token Card (Quân's Backend) */}
+        {quanAuth ? (
+          <div className="bg-white overflow-hidden shadow rounded-lg border-2 border-purple-200">
+            <div className="px-4 py-5 border-b border-purple-100 sm:px-6 flex justify-between items-center bg-purple-50">
+              <div className="flex items-center space-x-2">
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                </span>
+                <h3 className="text-lg leading-6 font-semibold text-purple-900">
+                  Đồng Bộ Đa Hệ Thống: OAuth2 Token (Backend của Quân)
+                </h3>
+              </div>
+              <div className="space-x-3 flex items-center">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-300 font-mono">
+                  {quanAuth.role || 'ROLE_PERSONAL'}
+                </span>
+                <button
+                  onClick={copyQuanToken}
+                  className="inline-flex items-center px-3 py-1.5 border border-purple-300 shadow-sm text-xs font-medium rounded text-purple-700 bg-white hover:bg-purple-50 focus:outline-none"
+                >
+                  Copy
+                </button>
+                <a
+                  href={`https://jwt.io?token=${quanAuth.token}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-3 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-purple-600 hover:bg-purple-700 focus:outline-none"
+                >
+                  Giải mã trên jwt.io
+                </a>
+              </div>
+            </div>
+            <div className="px-4 py-4 sm:p-6 bg-purple-50/30">
+              <div className="bg-white p-3 rounded-md border border-purple-100 overflow-x-auto mb-2">
+                <code className="text-xs text-purple-900 break-all font-mono">
+                  {quanAuth.token.substring(0, 100)}...{quanAuth.token.substring(quanAuth.token.length - 20)}
+                </code>
+              </div>
+              <p className="text-xs text-purple-600">
+                ✨ <strong>Chứng minh SOA:</strong> Sau 1 cú click Google Sign-In, tài khoản đã được tự động đồng bộ vào SQL Server của Quân và nhận thêm JWT ký bằng <strong>HMAC-SHA384</strong>!
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-purple-50/50 border border-dashed border-purple-200 rounded-lg p-4 text-xs text-purple-700 flex justify-between items-center">
+            <span>
+              🔗 <strong>Đồng bộ OAuth2 (soa-auth-system):</strong> Sẵn sàng nhận Google ID Token để cấp thêm JWT từ Spring Boot của Quân.
+            </span>
+            <span className="text-purple-400 font-mono">POST /api/auth/google/firebase-token</span>
+          </div>
+        )}
 
         {/* API Testing Section */}
         <div className="bg-white overflow-hidden shadow rounded-lg">

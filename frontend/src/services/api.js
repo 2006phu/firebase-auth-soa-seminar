@@ -78,3 +78,47 @@ export const getUserInfo = async (baseUrl) => {
     throw error;
   }
 };
+
+/**
+ * Đồng bộ tài khoản sang Backend OAuth2 của Quân (soa-auth-system)
+ * Gửi Google ID Token (credential.idToken từ Firebase signInWithPopup)
+ * để backend Quân xác thực bằng Google Public Keys và lưu vào SQL Server.
+ *
+ * @param {string} googleIdToken - Google ID Token lấy từ credential.idToken
+ * @returns {Promise<object|null>} AuthResponse của Quân hoặc null nếu không kết nối được
+ */
+export const syncToOAuth2Backend = async (googleIdToken) => {
+  const QUAN_BASE_URL = import.meta.env.VITE_QUAN_API_BASE_URL || 'http://localhost:8080';
+  try {
+    const url = formatBaseUrl(QUAN_BASE_URL);
+    const response = await axios.post(
+      `${url}/api/auth/google/firebase-token`,
+      { idToken: googleIdToken },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
+        timeout: 5000, // Timeout 5s — không chờ lâu nếu Quân's backend offline
+      }
+    );
+
+    const quanJwt = response.data?.data?.accessToken;
+    const quanEmail = response.data?.data?.email;
+    const quanRole = response.data?.data?.role;
+
+    if (quanJwt) {
+      localStorage.setItem('quan_oauth2_jwt', quanJwt);
+      localStorage.setItem('quan_oauth2_email', quanEmail || '');
+      localStorage.setItem('quan_oauth2_role', quanRole || '');
+      console.log('✅ Đã đồng bộ sang OAuth2 Backend thành công!', { quanEmail, quanRole });
+    }
+
+    return response.data;
+  } catch (error) {
+    // Ghi log nhưng KHÔNG throw — để luồng đăng nhập Firebase không bị gián đoạn
+    console.warn('⚠️ OAuth2 Backend không phản hồi hoặc xảy ra lỗi:', error.message);
+    return null;
+  }
+};
+
