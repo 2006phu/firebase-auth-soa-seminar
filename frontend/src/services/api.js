@@ -104,13 +104,14 @@ export const syncToOAuth2Backend = async (googleIdToken) => {
     );
 
     const quanJwt = response.data?.data?.accessToken;
-    const quanEmail = response.data?.data?.email;
-    const quanRole = response.data?.data?.role;
+    const quanEmail = response.data?.data?.user?.email || response.data?.data?.email;
+    const quanRole = response.data?.data?.user?.role || response.data?.data?.role;
 
     if (quanJwt) {
       localStorage.setItem('quan_oauth2_jwt', quanJwt);
       localStorage.setItem('quan_oauth2_email', quanEmail || '');
       localStorage.setItem('quan_oauth2_role', quanRole || '');
+      window.dispatchEvent(new Event('quan_auth_synced'));
       console.log('✅ Đã đồng bộ sang OAuth2 Backend thành công!', { quanEmail, quanRole });
     }
 

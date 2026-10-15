@@ -34,12 +34,18 @@ const Dashboard = () => {
       }
 
       // Kiểm tra token đã đồng bộ từ Backend OAuth2 của Quân
-      const qJwt = localStorage.getItem('quan_oauth2_jwt');
-      const qEmail = localStorage.getItem('quan_oauth2_email');
-      const qRole = localStorage.getItem('quan_oauth2_role');
-      if (qJwt) {
-        setQuanAuth({ token: qJwt, email: qEmail, role: qRole });
-      }
+      const syncQuanState = () => {
+        const qJwt = localStorage.getItem('quan_oauth2_jwt');
+        const qEmail = localStorage.getItem('quan_oauth2_email');
+        const qRole = localStorage.getItem('quan_oauth2_role');
+        if (qJwt) {
+          setQuanAuth({ token: qJwt, email: qEmail, role: qRole });
+        }
+      };
+
+      syncQuanState();
+      window.addEventListener('quan_auth_synced', syncQuanState);
+      return () => window.removeEventListener('quan_auth_synced', syncQuanState);
     };
     
     fetchUserAndToken();
