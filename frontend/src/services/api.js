@@ -88,7 +88,7 @@ export const getUserInfo = async (baseUrl) => {
  * @returns {Promise<object|null>} AuthResponse của Quân hoặc null nếu không kết nối được
  */
 export const syncToOAuth2Backend = async (googleIdToken) => {
-  const QUAN_BASE_URL = import.meta.env.VITE_QUAN_API_BASE_URL || 'http://localhost:8080';
+  const QUAN_BASE_URL = import.meta.env.VITE_QUAN_API_BASE_URL || 'http://localhost:8081';
   try {
     const url = formatBaseUrl(QUAN_BASE_URL);
     const response = await axios.post(
