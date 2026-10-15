@@ -177,7 +177,7 @@ const Dashboard = () => {
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
                 </span>
                 <h3 className="text-lg leading-6 font-semibold text-purple-900">
-                  Đồng Bộ Đa Hệ Thống: OAuth2 Token (Backend của Quân)
+                  Đồng Bộ Đa Hệ Thống: OAuth2 Token
                 </h3>
               </div>
               <div className="space-x-3 flex items-center">
