@@ -360,11 +360,13 @@ Kiểm chứng tính ổn định, độ sẵn sàng cao (High Availability) và
 
 > 💡 **Mẹo:** Nếu trong dự án bạn đã có sẵn file `frontend/.env`, bạn chỉ cần mở file đó lên là có sẵn trọn bộ 7 biến `VITE_FIREBASE_*` và `VITE_API_BASE_URL` để copy sang trong 30 giây!
 
-#### BƯỚC 4: Tạo Tệp Kịch Bản GitHub Actions Workflow
-> ❓ **Câu hỏi thường gặp:** *"Bước này trên GitHub có sẵn file không hay phải tạo thủ công?"*  
-> 👉 **Trả lời:** File này **KHÔNG CÓ SẴN TRÊN GITHUB MẶC ĐỊNH**, bạn **PHẢI TẠO THỦ CÔNG 1 LẦN DUY NHẤT**. Chọn 1 trong 2 cách:
-> - **Cách 1 (Tạo trực tiếp trên giao diện GitHub Web):** Vào repo GitHub $\rightarrow$ Bấm **"Add file"** $\rightarrow$ **"Create new file"** $\rightarrow$ Nhập tên: `.github/workflows/firebase-hosting-merge.yml` $\rightarrow$ Dán nội dung YAML bên dưới $\rightarrow$ Bấm **"Commit changes..."**.
-> - **Cách 2 (Tạo cục bộ bằng VS Code / IDE):** Tạo file `.github/workflows/firebase-hosting-merge.yml` trong project $\rightarrow$ Dán nội dung YAML $\rightarrow$ Commit và push lên GitHub.
+#### BƯỚC 4: Thêm Tệp Kịch Bản GitHub Actions Workflow
+> 💡 **Cách nhanh nhất (Khuyên dùng - Sử dụng trực tiếp file nhóm gửi):**
+> 1. Nhận file `firebase-hosting-merge.yml` do nhóm chia sẻ (hoặc lấy từ thư mục `.github/workflows/` của repo).
+> 2. Mở file, đổi dòng cuối cùng `projectId:` thành Project ID Firebase của bạn (ví dụ: `projectId: your-firebase-project-id`).
+> 3. Trong project của bạn, tạo thư mục `.github/workflows/` rồi chép (di chuyển) file này vào đó.
+> 
+> *(Nếu muốn tự tạo thủ công trên web GitHub: Bấm **Add file** $\rightarrow$ **Create new file** $\rightarrow$ đặt tên `.github/workflows/firebase-hosting-merge.yml` $\rightarrow$ dán YAML bên dưới $\rightarrow$ Commit changes).*
 
 **Nội dung code YAML cho `.github/workflows/firebase-hosting-merge.yml`:**
 ```yaml
