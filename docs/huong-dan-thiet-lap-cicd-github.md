@@ -93,7 +93,7 @@
 
 | Tên Secret (Name) | Nơi tìm chính xác để copy giá trị (Value) |
 |---|---|
-| **`FIREBASE_SERVICE_ACCOUNT`** | Mở tệp JSON vừa tải về ở **Bước 2** bằng Notepad/VS Code $\rightarrow$ bấm `Ctrl + A` $\rightarrow$ `Ctrl + C` và dán trọn vẹn toàn bộ ruột file vào đây. |
+| **`FIREBASE_SERVICE_ACCOUNT`** | Mở tệp JSON tải về ở **Bước 2** và dán toàn bộ nội dung file vào đây. |
 | **`VITE_FIREBASE_API_KEY`** | Vào Firebase Console $\rightarrow$ Project settings ⚙️ $\rightarrow$ tab **General** $\rightarrow$ cuộn xuống mục **Your apps** $\rightarrow$ xem dòng `apiKey: "AIzaSy..."` (chỉ copy chuỗi trong ngoặc kép). |
 | **`VITE_FIREBASE_AUTH_DOMAIN`** | Cùng vị trí trên, copy dòng `authDomain: "xxx.firebaseapp.com"`. |
 | **`VITE_FIREBASE_PROJECT_ID`** | Cùng vị trí trên, copy dòng `projectId: "soa-firebase-demo-31877"`. |
@@ -111,19 +111,15 @@
 > ❓ **Câu hỏi thường gặp:** *"Bước này trên GitHub có sẵn file không hay phải tạo thủ công?"*  
 > 👉 **Trả lời:** File này **KHÔNG CÓ SẴN TRÊN GITHUB MẶC ĐỊNH**, bạn **PHẢI TẠO THỦ CÔNG 1 LẦN DUY NHẤT**. Bạn có thể chọn 1 trong 2 cách sau:
 
-* **Cách 1 (Làm trực tiếp trên Web GitHub - Dễ nhất, không cần mở máy):**
-  1. Vào trang chính Repo của bạn trên GitHub.
-  2. Bấm nút **"Add file"** (góc trên bên phải) $\rightarrow$ chọn **"Create new file"**.
-  3. Tại ô nhập tên file, gõ chính xác:  
-     👉 `.github/workflows/firebase-hosting-merge.yml`  
-     *(Khi bạn gõ dấu `/`, GitHub sẽ tự động tạo thư mục con `.github` và `workflows` cho bạn).*
-  4. Dán toàn bộ nội dung code YAML bên dưới vào.
-  5. Cuộn xuống bấm nút xanh **"Commit changes..."** $\rightarrow$ chọn **Commit changes**.
+* **Cách 1 (Tạo trực tiếp trên giao diện GitHub Web):**
+  1. Trên trang repo GitHub, bấm **"Add file"** $\rightarrow$ chọn **"Create new file"**.
+  2. Tại ô tên file, gõ: `.github/workflows/firebase-hosting-merge.yml`.
+  3. Dán toàn bộ nội dung code YAML bên dưới vào.
+  4. Bấm nút **"Commit changes..."** để lưu.
 
-* **Cách 2 (Tạo trên máy tính qua VS Code):**
-  1. Tại thư mục gốc của dự án, tạo thư mục `.github`, bên trong tạo thư mục `workflows`, và tạo file tên `firebase-hosting-merge.yml`.
-  2. Dán nội dung YAML bên dưới vào và lưu lại.
-  3. Mở terminal gõ: `git add .` $\rightarrow$ `git commit -m "add workflow"` $\rightarrow$ `git push origin main`.
+* **Cách 2 (Tạo cục bộ bằng VS Code / IDE):**
+  1. Tạo file `.github/workflows/firebase-hosting-merge.yml` trong thư mục dự án và dán nội dung YAML bên dưới.
+  2. Dùng lệnh `git commit` và `git push origin main`.
 
 #### 📄 Nội dung code YAML cần dán vào file:
 
