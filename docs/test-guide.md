@@ -37,28 +37,40 @@ npm run dev
 ```
 👉 Truy cập: `http://localhost:5173`
 
-### 0.3. Khởi động Backend (Chọn 1 hoặc chạy cả 3 trên các cổng khác nhau)
+### 0.3. Khởi động Backend Firebase (Chọn 1 hoặc chạy cả 3 trên các cổng khác nhau)
 
-* **Terminal 2 - FastAPI (Port 8000)**:
-  ```bash
+* **Terminal 2 - FastAPI (Port 8000 - Khuyên dùng):**
+  ```powershell
   cd backend-fastapi
-  python -m uvicorn main:app --reload --port 8000
+  uvicorn main:app --reload --port 8000
   ```
   Kiểm tra: mở trình duyệt `http://localhost:8000` -> Thấy `{"status":"ok","service":"FastAPI + Firebase Auth"}`.
 
 * **Terminal 3 - NodeJS Express (Port 3000)** *(tùy chọn)*:
-  ```bash
+  ```powershell
   cd backend-nodejs
   npm run dev
   ```
   Kiểm tra: mở `http://localhost:3000` -> Thấy `{"status":"ok","service":"NodeJS Express + Firebase Auth"}`.
 
-* **Terminal 4 - Spring Boot (Port 8080)** *(tùy chọn)*:
-  ```bash
+* **Terminal 4 - Spring Boot Firebase (Port 8080)** *(tùy chọn)*:
+  ```powershell
   cd backend-springboot
-  mvn spring-boot:run
+  .\mvnw.cmd spring-boot:run
   ```
   Kiểm tra: mở `http://localhost:8080` -> Thấy `{"status":"UP","message":"Hệ thống đang hoạt động tốt!"}`.
+
+### 0.4. Khởi động Backend Đối Tác OAuth2 Của Quân (Port 8081) - Dành Cho Test Đa Hệ Thống
+
+Dự án của Quân (`backend-quan-oauth2`) đã được tích hợp sẵn sàng trong repo, chạy cơ sở dữ liệu H2 nhúng tự động:
+Mở Terminal 5:
+```powershell
+cd backend-quan-oauth2
+.\mvnw.cmd spring-boot:run
+```
+* **Kiểm tra trạng thái:** Mở trình duyệt `http://localhost:8081/api/users/database-viewer`.
+* **Trang web xem database của Quân:** `http://localhost:8081/database.html`.
+* Khi terminal hiện `Started SoaAuthSystemApplication in ... seconds` trên cổng **8081** là hoàn tất!
 
 ---
 

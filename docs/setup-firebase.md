@@ -5,13 +5,13 @@ Tài liệu này hướng dẫn cách tạo và cấu hình một dự án trên
 ## Bước 1: Tạo project trên Firebase Console
 1. Truy cập [Firebase Console](https://console.firebase.google.com/).
 2. Đăng nhập bằng tài khoản Google của bạn.
-3. Nhấp vào **"Add project"** (Thêm dự án).
+3. Nhấp vào **"CREATE Add project"** (Thêm dự án).
 4. Nhập tên dự án (VD: `soa-firebase-demo`).
 5. (Tuỳ chọn) Bạn có thể vô hiệu hoá Google Analytics cho dự án demo này.
 6. Nhấp **"Create project"**.
 
 ## Bước 2: Bật xác thực Email/Password
-1. Trong menu bên trái của Firebase Console, chọn **"Build"** -> **"Authentication"**.
+1. Trong menu bên trái của Firebase Console, chọn **"Security"** -> **"Authentication"**.
 2. Nhấp vào nút **"Get started"**.
 3. Chuyển sang tab **"Sign-in method"**.
 4. Trong phần **"Native providers"**, chọn **"Email/Password"**.
@@ -34,7 +34,7 @@ Tài liệu này hướng dẫn cách tạo và cấu hình một dự án trên
 6. Nhấp **"Continue to console"**.
 
 ## Bước 5: Tạo Service Account Key (Backend)
-1. Trong Project Overview, nhấp vào biểu tượng bánh răng ⚙️ (Settings) và chọn **"Project settings"**.
+1. Trong Project Overview, nhấp vào biểu tượng bánh răng ⚙️ (Settings) và chọn **"General"**.
 2. Chuyển sang tab **"Service accounts"**.
 3. Đảm bảo **"Firebase Admin SDK"** đang được chọn và ngôn ngữ là Node.js/Python/Java.
 4. Nhấp vào nút **"Generate new private key"**.

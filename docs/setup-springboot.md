@@ -25,7 +25,7 @@ Mở tệp `src/main/resources/application.properties` (hoặc `.yml`) và kiể
 ## Bước 4: Khởi chạy ứng dụng
 Chạy ứng dụng bằng Maven:
 ```bash
-mvn spring-boot:run
+mvnw.cmd spring-boot:run
 ```
 Server sẽ khởi động tại cổng mặc định là `8080`. Địa chỉ truy cập: `http://localhost:8080`.
 
