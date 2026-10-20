@@ -1,0 +1,212 @@
+================================================================================
+          CHEAT SHEET THUYẾT TRÌNH & LIVE DEMO SEMINAR SOA
+     (TỔNG HỢP TOÀN BỘ LINK VÀ CÂU LỆNH ĐỂ COPY & PASTE SIÊU TỐC)
+================================================================================
+
+--------------------------------------------------------------------------------
+MỤC LỤC NHANH:
+  1. DANH SÁCH TẤT CẢ ĐƯỜNG LINK (LOCAL, CLOUD, CONSOLE, REPO, CÔNG CỤ)
+  2. CÁC LỆNH KHỞI ĐỘNG HỆ THỐNG TRƯỚC GIỜ LÊN BỤC (TERMINAL 1 -> 5)
+  3. CÁC LỆNH CURL TEST BIÊN GLASSBOX (DEMO 4 TRÊN POWERSHELL)
+  4. CÁC LỆNH & THAO TÁC DEMO CI/CD GITHUB ACTIONS (3 TÌNH HUỐNG)
+  5. CÁC LỆNH THIẾT LẬP BAN ĐẦU DÀNH CHO CẢ LỚP / SETUP
+--------------------------------------------------------------------------------
+
+
+================================================================================
+1. DANH SÁCH TẤT CẢ ĐƯỜNG LINK (TRÌNH DUYỆT WEB)
+================================================================================
+
+[Ứng Dụng & Giao Diện Web]:
+- Frontend Web Cloud (Firebase Hosting):
+https://soa-firebase-demo-31877.web.app
+
+- Frontend Web Local:
+http://localhost:5173
+
+- Frontend Trang Đăng Nhập Local:
+http://localhost:5173/login
+
+[Dự Án Quân & Cổng Soi Dữ Liệu SQL/H2]:
+- API Soi Database Sống Của Quân (JSON trực tiếp):
+http://localhost:8081/api/users/database-viewer
+
+- Trang Giao Diện Web Soi Database Của Quân:
+http://localhost:8081/database.html
+
+- Trang Đăng Nhập Của Quân:
+http://localhost:8081
+
+- H2 In-Memory Console Của Quân:
+http://localhost:8081/h2-console
+
+[Backend Endpoints Kiểm Tra Trực Tiếp]:
+- FastAPI Kiểm Tra Sống:
+http://localhost:8000
+
+- FastAPI Swagger UI Docs:
+http://localhost:8000/docs
+
+- Spring Boot Firebase Kiểm Tra Sống:
+http://localhost:8080
+
+- NodeJS Express Kiểm Tra Sống:
+http://localhost:3000
+
+[Google Firebase & Công Cụ Cloud]:
+- Firebase Console (Tổng quan):
+https://console.firebase.google.com/
+
+- Firebase Console Trang Quản Lý Hosting & Rollback:
+https://console.firebase.google.com/u/0/project/soa-firebase-demo-31877/overview
+
+- Google Identity Toolkit Endpoint (Bắt gói tin F12):
+identitytoolkit.googleapis.com
+
+- Google JWKS Public Keys (Giải mã RS256):
+https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com
+
+[GitHub & CI/CD]:
+- GitHub Repository Dự Án:
+https://github.com/2006phu/firebase-auth-soa-seminar
+
+- GitHub Actions (Theo dõi tiến trình CI/CD):
+https://github.com/2006phu/firebase-auth-soa-seminar/actions
+
+- File Cấu Hình Workflow CI/CD:
+.github/workflows/firebase-hosting-merge.yml
+
+[Công Cụ Giải Phẫu Token JWT]:
+- Trang Web Giải Mã Token JWT Trực Tuyến:
+https://jwt.io
+
+
+================================================================================
+2. CÁC LỆNH KHỞI ĐỘNG HỆ THỐNG TRƯỚC GIỜ LÊN BỤC (CHẠY TẠI MÁY)
+================================================================================
+
+--- [TERMINAL 1: FRONTEND REACT (CỔNG 5173)] ---
+cd d:\University\SOA\Seminar\frontend
+npm run dev
+
+--- [TERMINAL 2: BACKEND FASTAPI PYTHON (CỔNG 8000 - KHUYÊN DÙNG)] ---
+cd d:\University\SOA\Seminar\backend-fastapi
+uvicorn main:app --reload --port 8000
+
+--- [TERMINAL 3: BACKEND SPRING BOOT FIREBASE (CỔNG 8080)] ---
+cd d:\University\SOA\Seminar\backend-springboot
+.\mvnw.cmd spring-boot:run
+
+--- [TERMINAL 4: BACKEND OAUTH2 CỦA QUÂN (CỔNG 8081)] ---
+cd d:\University\SOA\Seminar\backend-quan-oauth2
+.\mvnw.cmd spring-boot:run
+
+--- [TERMINAL 5: BACKEND NODEJS EXPRESS (CỔNG 3000 - NẾU CẦN DEMO THÊM)] ---
+cd d:\University\SOA\Seminar\backend-nodejs
+npm run dev
+
+
+================================================================================
+3. CÁC LỆNH CURL TEST BIÊN GLASSBOX TRỰC TIẾP (POWERSHELL / TERMINAL)
+================================================================================
+
+### 3.1. Test Gọi Endpoint Public (Không cần Token -> 200 OK):
+curl.exe -X GET http://localhost:8000/api/public
+
+### 3.2. Test 1 (DEMO 4): Không gửi Token -> Bị chặn 403 Forbidden:
+curl.exe -i -X GET http://localhost:8000/api/protected
+
+### 3.3. Test 2 (DEMO 4): Gửi Token giả mạo / sửa chữ ký -> Bị chặn 401 Unauthorized:
+curl.exe -i -X GET http://localhost:8000/api/protected -H "Authorization: Bearer token_gia_mao_123"
+
+### 3.4. Test 3 (DEMO 4): Gửi Token THẬT (Copy từ Dashboard):
+$TOKEN = "DÁN_CHUỖI_TOKEN_VỪA_COPY_Ở_DASHBOARD_VÀO_ĐÂY"
+curl.exe -X GET http://localhost:8000/api/protected -H "Authorization: Bearer $TOKEN"
+
+### 3.5. Test Lấy Đầy Đủ Thông Tin User Info:
+curl.exe -X GET http://localhost:8000/api/user-info -H "Authorization: Bearer $TOKEN"
+
+### 3.6. Test cURL Sang Spring Boot (Cổng 8080):
+curl.exe -X GET http://localhost:8080/api/public
+curl.exe -i -X GET http://localhost:8080/api/protected -H "Authorization: Bearer $TOKEN"
+
+### 3.7. Test cURL Sang NodeJS (Cổng 3000):
+curl.exe -X GET http://localhost:3000/api/public
+curl.exe -i -X GET http://localhost:3000/api/protected -H "Authorization: Bearer $TOKEN"
+
+
+================================================================================
+4. CÁC LỆNH & ĐOẠN MÃ DEMO CI/CD GITHUB ACTIONS (3 TÌNH HUỐNG)
+================================================================================
+
+### 4.1. TÌNH HUỐNG 1: Happy Path (Triển khai thành công):
+- Vị trí sửa: File `frontend/src/components/Login.jsx` (thẻ <h2>)
+- Đoạn text thay thế:
+Đăng nhập vào tài khoản (TDTU LIVE DEMO 🚀)
+
+- Lệnh Git nếu commit từ máy:
+git commit -am "test: verify automated CI/CD pipeline deployment"
+git push origin main
+
+### 4.2. TÌNH HUỐNG 2: Runtime Error ("Build tích xanh nhưng Web trắng bóc"):
+- Vị trí sửa: File `frontend/src/components/Login.jsx` (ngay dưới import)
+- Dòng code gây lỗi Runtime:
+dhsfkjsndkjfndskj
+
+- Lệnh Git nếu commit từ máy:
+git commit -am "test: trigger runtime error"
+git push origin main
+
+### 4.3. TÌNH HUỐNG 3: Build-time Error & Fail-Safe ("CI/CD chặn đứng, Web vẫn sống"):
+- Vị trí sửa: File `frontend/src/components/Login.jsx` (đầu file)
+- Dòng code gây vỡ build compile:
+import ThuVienAo from './FileKhongTonTai';
+
+- Lệnh Git nếu commit từ máy:
+git commit -am "test: trigger build-time compile error"
+git push origin main
+
+- Lệnh Rollback / Reset Git sau khi test xong:
+git checkout frontend/src/components/Login.jsx
+git commit -am "fix: restore clean login page"
+git push origin main
+
+
+================================================================================
+5. CÁC LỆNH THIẾT LẬP BAN ĐẦU & CÀI ĐẶT THƯ VIỆN (SETUP REFERENCE)
+================================================================================
+
+--- [CÀI ĐẶT FRONTEND]:
+cd frontend
+npm install
+npm run dev
+npm run build
+
+--- [CÀI ĐẶT FASTAPI]:
+cd backend-fastapi
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+
+--- [CÀI ĐẶT SPRING BOOT FIREBASE]:
+cd backend-springboot
+.\mvnw.cmd clean compile
+.\mvnw.cmd spring-boot:run
+
+--- [CÀI ĐẶT BACKEND QUÂN OAUTH2]:
+cd backend-quan-oauth2
+.\mvnw.cmd clean compile
+.\mvnw.cmd spring-boot:run
+
+--- [CÀI ĐẶT NODEJS EXPRESS]:
+cd backend-nodejs
+npm install
+npm run dev
+
+--- [CÀI ĐẶT FIREBASE CLI & HOSTING]:
+npm install -g firebase-tools
+firebase login
+firebase init hosting
+firebase deploy --only hosting
+================================================================================
