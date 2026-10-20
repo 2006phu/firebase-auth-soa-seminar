@@ -5,48 +5,16 @@ color 0B
 
 echo ======================================================================
 echo       KHOI DONG TOAN BO HE THONG SEMINAR SOA (1-CLICK RUN)
-echo  (Tu dong kiem tra moi truong, cai dat thu vien va khoi chay 5 app)
+echo  (Tu dong cai dat thu vien neu chua co va khoi chay 5 ung dung)
 echo ======================================================================
 echo.
 
 set ROOT_DIR=%~dp0
 
 :: ========================================================================
-:: 1. KIEM TRA CAC PHAN MEM YEU CAU (PRE-REQUISITES)
+:: 1. TU DONG COPY FILE .ENV NEU CHUA CO
 :: ========================================================================
-echo [BUOC 1/4] Kiem tra phan mem can thiet tren may...
-
-where node >nul 2>nul
-if %errorlevel% neq 0 (
-    color 0C
-    echo [LOI] May chua cai dat Node.js! Vui long tai va cai tai: https://nodejs.org/
-    pause
-    exit /b
-)
-
-where python >nul 2>nul
-if %errorlevel% neq 0 (
-    color 0C
-    echo [LOI] May chua cai dat Python! Vui long tai va cai tai: https://www.python.org/ (Nho tich vao Add Python to PATH)
-    pause
-    exit /b
-)
-
-where java >nul 2>nul
-if %errorlevel% neq 0 (
-    color 0C
-    echo [LOI] May chua cai dat Java JDK (17+)! Vui long tai va cai tai: https://adoptium.net/
-    pause
-    exit /b
-)
-
-echo -> Tat ca moi truong Node.js, Python, Java deu da san sang!
-echo.
-
-:: ========================================================================
-:: 2. TU DONG COPY FILE .ENV NEU CHUA CO
-:: ========================================================================
-echo [BUOC 2/4] Kiem tra va thiet lap file cau hinh (.env)...
+echo [BUOC 1/3] Kiem tra va thiet lap file cau hinh (.env)...
 
 if not exist "%ROOT_DIR%frontend\.env" (
     if exist "%ROOT_DIR%frontend\.env.example" (
@@ -91,9 +59,9 @@ if not exist "%ROOT_DIR%backend-fastapi\serviceAccountKey.json" (
 )
 
 :: ========================================================================
-:: 3. TU DONG CAI DAT DEPENDENCIES / THU VIEN CHO MAY MOI
+:: 2. TU DONG CAI DAT DEPENDENCIES / THU VIEN CHO MAY MOI
 :: ========================================================================
-echo [BUOC 3/4] Kiem tra va tu dong cai dat thu vien neu may moi chua co...
+echo [BUOC 2/3] Kiem tra va tu dong cai dat thu vien neu may moi chua co...
 
 :: Frontend
 if not exist "%ROOT_DIR%frontend\node_modules" (
@@ -118,14 +86,14 @@ if not exist "%ROOT_DIR%backend-fastapi\venv" (
 
 echo.
 echo ======================================================================
-echo  CAC THU VIEN DEU DA DUOC CAI DAT XONG! BAT DAU KHOI DONG HE THONG...
+echo  CAC THU VIEN DEU DA SAN SANG! DANG KHOI DONG 5 CUA SO DICH VU...
 echo ======================================================================
 echo.
 
 :: ========================================================================
-:: 4. KHOI DONG DONG THOI 5 DICH VU (1 FE + 4 BE)
+:: 3. KHOI DONG DONG THOI 5 DICH VU (1 FE + 4 BE)
 :: ========================================================================
-echo [BUOC 4/4] Dang mo 5 cua so dich vu...
+echo [BUOC 3/3] Dang mo 5 cua so dich vu...
 
 echo [1/5] Dang bat Frontend React (Port 5173)...
 start "FE - React Frontend (Port 5173)" cmd /k "cd /d "%ROOT_DIR%frontend" && npm run dev"
