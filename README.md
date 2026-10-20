@@ -1,59 +1,69 @@
 # Firebase Authentication Demo - SOA Seminar
 
-**Mô tả:** Dự án demo các tính năng xác thực người dùng (Authentication) của Firebase, kết hợp với các công nghệ Backend phổ biến (FastAPI, NodeJS, Spring Boot) và Frontend (React). Dự án này phục vụ cho buổi Seminar môn học Kiến trúc Hướng Dịch vụ (SOA).
+**Mô tả:** Dự án demo các tính năng xác thực người dùng (Authentication) của Firebase, kết hợp với các công nghệ Backend phổ biến (FastAPI, NodeJS, Spring Boot) và Frontend (React), đồng thời tích hợp đa hệ thống liên kết danh tính (Federated Identity) với backend OAuth2 của Quân (`backend-quan-oauth2`). Dự án phục vụ cho buổi Seminar môn học Kiến trúc Hướng Dịch vụ (SOA) - Đại học Tôn Đức Thắng (TDTU).
 
-## Kiến trúc tổng quan
+---
 
-```text
-+-------------------+        Firebase SDK       +----------------------+
-|                   | <-----------------------> |                      |
-|  React Frontend   |                           |  Firebase Auth &     |
-| (Vite + Tailwind) |        Token (JWT)        |  Google Cloud        |
-|                   | ------------------------> |                      |
-+-------------------+                           +----------------------+
-          |                                                ^
-          | HTTP Requests with                             |
-          | Authorization: Bearer <token>                  |
-          v                                                | Verify Token
-+-------------------+                                      | (Firebase Admin)
-|                   |                                      |
-| Backend Services  | -------------------------------------+
-| (Choose One)      |
-| - FastAPI         |
-| - NodeJS Express  |
-| - Spring Boot     |
-+-------------------+
-```
+## ⚡ Quick Start - Khởi Động Nhanh Hệ Thống (1-Click Run)
 
-## Yêu cầu hệ thống
-- Node.js 18+ (cho Frontend và NodeJS Backend)
-- Python 3.10+ (cho FastAPI Backend)
-- Java 17+ và Maven 3.8+ (cho Spring Boot Backend)
+Dự án hỗ trợ script khởi động tự động **1 Frontend + 4 Backend** (bao gồm cả dự án OAuth2 của Quân) cho cả Windows và macOS/Linux:
 
-## Quick Start
-1. **Thiết lập Firebase**: Tạo project trên Firebase Console, lấy thông tin cấu hình và Service Account Key. Xem chi tiết tại [Hướng dẫn tạo Firebase Project](docs/setup-firebase.md).
-2. **Chạy Frontend**: Xem chi tiết tại [Hướng dẫn chạy React Frontend](docs/setup-frontend.md).
-3. **Chạy (chọn 1) Backend**:
-    - [FastAPI](docs/setup-fastapi.md)
-    - [NodeJS](docs/setup-nodejs.md)
-    - [Spring Boot](docs/setup-springboot.md)
-4. **Kiểm thử toàn bộ hệ thống**: Xem kịch bản chi tiết tại [Hướng dẫn kiểm thử (Test Guide)](docs/test-guide.md).
-5. **Xử lý sự cố**: Xem [Hướng dẫn khắc phục lỗi (Troubleshooting)](docs/troubleshooting.md).
+### 🪟 Trên Windows:
+1. Đảm bảo đã đặt file `serviceAccountKey.json` vào các thư mục backend (xem lưu ý bên dưới).
+2. **Nhấp đúp chuột vào file [`start-all.bat`](start-all.bat)**:
+   - Script sẽ **tự động sao chép file cấu hình `.env`** từ `.env.example` nếu máy mới chưa có.
+   - Script sẽ **tự động kiểm tra và tải thư viện** (`npm install`, tạo môi trường ảo Python `venv`, `pip install`) nếu máy mới chưa cài.
+   - Tự động mở đồng loạt 5 cửa sổ riêng biệt cho 5 service.
+3. Khi muốn dừng toàn bộ hệ thống và giải phóng port: **Nhấp đúp chuột vào file [`stop-all.bat`](stop-all.bat)**.
 
-## Tính năng Demo
-- Đăng ký tài khoản (Email/Password)
-- Đăng nhập (Email/Password)
-- Đăng nhập với Google (OAuth)
-- Đăng xuất
-- Xác thực token JWT ở Backend để bảo vệ API (Protected Routes)
+### 🍏 Trên macOS / Linux:
+1. Mở Terminal và di chuyển vào thư mục dự án:
+   ```bash
+   cd /duong/dan/toi/firebase-auth-soa-seminar
+   ```
+2. Cấp quyền thực thi (chỉ cần làm 1 lần đầu):
+   ```bash
+   chmod +x start-all.sh stop-all.sh
+   ```
+3. Chạy script:
+   ```bash
+   ./start-all.sh
+   ```
+4. Khi muốn tắt toàn bộ hệ thống: `./stop-all.sh`.
 
-## Tech Stack
-| Thành phần | Công nghệ | Chi tiết |
-|------------|-----------|----------|
-| Frontend   | React 18, Vite, Tailwind CSS | Firebase SDK v9 (Client) |
-| Backend 1  | Python FastAPI | firebase-admin |
-| Backend 2  | NodeJS Express | firebase-admin |
-| Backend 3  | Java Spring Boot 3 | Spring Security, firebase-admin |
+---
+
+### 🌐 Bản Đồ Cổng Dịch Vụ Sau Khi Khởi Động:
+| Dịch vụ | Cổng (Port) / URL | Ghi chú |
+|---|---|---|
+| **Frontend React** | [http://localhost:5173](http://localhost:5173) | Đăng nhập Google, Dashboard so sánh song song 2 Token |
+| **Backend 1: FastAPI** | [http://localhost:8000](http://localhost:8000) | Swagger UI Docs: `http://localhost:8000/docs` |
+| **Backend 2: Spring Boot Firebase** | [http://localhost:8080](http://localhost:8080) | Xác thực Firebase ID Token (RS256) |
+| **Backend 3: Backend Quân OAuth2** | [http://localhost:8081](http://localhost:8081) | Cấp JWT HS384, lưu DB H2 |
+| **Trang Soi DB Của Quân** | [http://localhost:8081/database.html](http://localhost:8081/database.html) | API JSON: `http://localhost:8081/api/users/database-viewer` |
+| **Backend 4: NodeJS Express** | [http://localhost:3000](http://localhost:3000) | Xác thực Firebase Admin SDK |
+
+> ⚠️ **Lưu ý quan trọng cho máy mới clone từ GitHub:**  
+> File khóa bảo mật `serviceAccountKey.json` của Firebase được giữ bí mật (trong `.gitignore`). Trên máy mới, bạn cần đặt file `serviceAccountKey.json` vào:
+> - `backend-fastapi/serviceAccountKey.json`
+> - `backend-nodejs/serviceAccountKey.json`
+> - `backend-springboot/src/main/resources/serviceAccountKey.json`
+
+---
+
+## 🛠️ Chạy Thủ Công Từng Dịch Vụ (Manual Setup)
+Nếu muốn khởi chạy từng thành phần riêng biệt bằng tay, bạn có thể tham khảo tài liệu chi tiết:
+1. **Thiết lập Firebase**: [Hướng dẫn tạo Firebase Project](docs/setup-firebase.md)
+2. **Frontend React**: [Hướng dẫn chạy React Frontend](docs/setup-frontend.md)
+3. **Backend Services (Tùy chọn)**:
+    - [FastAPI (Python)](docs/setup-fastapi.md)
+    - [NodeJS Express](docs/setup-nodejs.md)
+    - [Spring Boot (Java)](docs/setup-springboot.md)
+4. **Kiểm thử hệ thống**: Xem kịch bản chi tiết 10 Test Cases tại [Hướng dẫn kiểm thử (Test Guide)](docs/test-guide.md).
+5. **Cheat Sheet Thuyết trình**: Copy nhanh các lệnh và link tại [Cheat Sheet Thuyết Trình](docs/cheat-sheet-thuyet-trinh.txt).
+6. **Xử lý sự cố**: Xem [Hướng dẫn khắc phục lỗi (Troubleshooting)](docs/troubleshooting.md).
+
+---
 
 ## 🚀 Tự Động Hóa Triển Khai (CI/CD Pipeline & Firebase Hosting)
 
