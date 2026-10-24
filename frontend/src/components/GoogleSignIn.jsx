@@ -54,8 +54,8 @@ const GoogleSignIn = ({ onError }) => {
         />
       </svg>
       <span>Đăng nhập qua Google</span>
-      <span className="ml-auto inline-flex items-center rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700 border border-indigo-200/60">
-        OAuth 2.0
+      <span className="ml-auto inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200/80">
+        Firebase Auth
       </span>
     </button>
   );
