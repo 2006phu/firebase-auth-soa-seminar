@@ -33,9 +33,9 @@ const GoogleSignIn = ({ onError }) => {
     <button
       type="button"
       onClick={handleGoogleSignIn}
-      className="group relative flex w-full items-center justify-center gap-3 rounded-xl bg-slate-900/90 px-4 py-3 text-sm font-semibold text-slate-200 border border-slate-700/80 hover:bg-slate-800 hover:text-white hover:border-indigo-500/50 shadow-lg shadow-black/20 transition-all duration-200 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+      className="group relative flex w-full items-center justify-center gap-3 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-700 border border-slate-300 hover:bg-slate-50/80 hover:border-slate-400 hover:text-slate-900 shadow-sm transition-all duration-200 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
     >
-      <svg className="h-5 w-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+      <svg className="h-5 w-5 transition-transform group-hover:scale-105" viewBox="0 0 24 24">
         <path
           d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
           fill="#4285F4"
@@ -53,8 +53,8 @@ const GoogleSignIn = ({ onError }) => {
           fill="#EA4335"
         />
       </svg>
-      <span>Đăng nhập an toàn với Google</span>
-      <span className="ml-auto inline-flex items-center rounded-md bg-indigo-500/10 px-2 py-0.5 text-xs font-medium text-indigo-300 border border-indigo-500/20">
+      <span>Đăng nhập qua Google</span>
+      <span className="ml-auto inline-flex items-center rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700 border border-indigo-200/60">
         OAuth 2.0
       </span>
     </button>
