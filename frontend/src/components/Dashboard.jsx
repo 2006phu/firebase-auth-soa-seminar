@@ -11,15 +11,15 @@ const Dashboard = () => {
   const [backendUrl, setBackendUrl] = useState(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080');
   const [apiResponse, setApiResponse] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [copyStatus, setCopyStatus] = useState({ firebase: false, quan: false });
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get current user and token
     const fetchUserAndToken = async () => {
       const currentUser = auth.currentUser;
       if (currentUser) {
         setUser({
-          displayName: currentUser.displayName || 'Không có tên',
+          displayName: currentUser.displayName || 'Người dùng Seminar',
           email: currentUser.email,
           uid: currentUser.uid,
           photoURL: currentUser.photoURL,
@@ -33,7 +33,6 @@ const Dashboard = () => {
         }
       }
 
-      // Kiểm tra token đã đồng bộ từ Backend OAuth2 của Quân
       const syncQuanState = () => {
         const qJwt = localStorage.getItem('quan_oauth2_jwt');
         const qEmail = localStorage.getItem('quan_oauth2_email');
@@ -63,15 +62,15 @@ const Dashboard = () => {
     }
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(token);
-    alert('Đã copy token vào clipboard!');
-  };
-
-  const copyQuanToken = () => {
-    if (quanAuth?.token) {
+  const copyToClipboard = (type) => {
+    if (type === 'firebase') {
+      navigator.clipboard.writeText(token);
+      setCopyStatus((prev) => ({ ...prev, firebase: true }));
+      setTimeout(() => setCopyStatus((prev) => ({ ...prev, firebase: false })), 2000);
+    } else if (type === 'quan' && quanAuth?.token) {
       navigator.clipboard.writeText(quanAuth.token);
-      alert('Đã copy OAuth2 Token của Quân vào clipboard!');
+      setCopyStatus((prev) => ({ ...prev, quan: true }));
+      setTimeout(() => setCopyStatus((prev) => ({ ...prev, quan: false })), 2000);
     }
   };
 
@@ -80,10 +79,11 @@ const Dashboard = () => {
     setApiResponse(null);
     try {
       const data = await callProtectedApi(backendUrl);
-      setApiResponse({ type: 'success', data });
+      setApiResponse({ type: 'success', status: 200, data });
     } catch (error) {
       setApiResponse({ 
         type: 'error', 
+        status: error.response?.status || 401,
         data: error.response?.data || error.message || 'Lỗi không xác định' 
       });
     } finally {
@@ -96,10 +96,11 @@ const Dashboard = () => {
     setApiResponse(null);
     try {
       const data = await callPublicApi(backendUrl);
-      setApiResponse({ type: 'success', data });
+      setApiResponse({ type: 'success', status: 200, data });
     } catch (error) {
       setApiResponse({ 
         type: 'error', 
+        status: error.response?.status || 500,
         data: error.response?.data || error.message || 'Lỗi không xác định' 
       });
     } finally {
@@ -107,196 +108,353 @@ const Dashboard = () => {
     }
   };
 
-  if (!user) return <div className="p-8 text-center">Đang tải...</div>;
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+          <span className="text-slate-400 text-sm font-mono">Đang tải dữ liệu phiên làm việc...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background Glows */}
+      <div className="absolute top-0 left-1/3 w-[600px] h-[300px] bg-indigo-600/10 blur-[130px] pointer-events-none"></div>
+      <div className="absolute bottom-10 right-10 w-[500px] h-[300px] bg-purple-600/10 blur-[120px] pointer-events-none"></div>
+
+      <div className="max-w-6xl mx-auto space-y-8 relative z-10">
         
-        {/* Header / User Profile Card */}
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6 flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-5">
-              <div className="flex-shrink-0">
-                {user.photoURL ? (
-                  <img className="h-16 w-16 rounded-full" src={user.photoURL} alt="Profile" />
-                ) : (
-                  <div className="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-800 text-xl font-bold">
-                    {user.email?.charAt(0).toUpperCase()}
-                  </div>
-                )}
+        {/* Top Navbar & User HUD */}
+        <header className="glass-panel rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              {user.photoURL ? (
+                <img className="h-14 w-14 rounded-2xl object-cover ring-2 ring-indigo-500/50 shadow-lg" src={user.photoURL} alt="Profile" />
+              ) : (
+                <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white text-xl font-bold ring-2 ring-white/10 shadow-lg">
+                  {user.email?.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 ring-2 ring-slate-950" title="Active Session"></span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-white tracking-tight">{user.displayName}</h2>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  VERIFIED
+                </span>
               </div>
+              <p className="text-xs text-slate-400 font-mono mt-0.5">{user.email}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[10px] text-slate-500 font-mono">UID:</span>
+                <span className="text-[10px] text-slate-400 font-mono bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 max-w-[200px] sm:max-w-xs truncate">
+                  {user.uid}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+            <a
+              href="https://soa-firebase-demo-31877.web.app"
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-indigo-400 hover:text-indigo-300 font-mono flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 transition-all hover:bg-indigo-500/15"
+            >
+              <span>Cloud Hosting</span>
+              <span className="text-[10px]">↗</span>
+            </a>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 hover:border-rose-500/40 border border-slate-700/80 text-xs font-semibold text-slate-200 shadow-md transition-all duration-150 flex items-center gap-1.5"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Đăng xuất</span>
+            </button>
+          </div>
+        </header>
+
+        {/* Multi-System Architecture Banner */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="glass-panel p-4 rounded-2xl border border-slate-800 flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20">
+              🌐
+            </div>
+            <div>
+              <p className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Identity Provider</p>
+              <p className="text-sm font-bold text-white">Google Identity Platform</p>
+            </div>
+          </div>
+          <div className="glass-panel p-4 rounded-2xl border border-slate-800 flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              ⚡
+            </div>
+            <div>
+              <p className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Authentication Core</p>
+              <p className="text-sm font-bold text-white">Firebase RS256 Stateless</p>
+            </div>
+          </div>
+          <div className="glass-panel p-4 rounded-2xl border border-slate-800 flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              🔗
+            </div>
+            <div>
+              <p className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Federated Identity</p>
+              <p className="text-sm font-bold text-white">Quân OAuth2 (HMAC-384)</p>
+            </div>
+          </div>
+        </div>
+
+        {/* DUAL-TOKEN SHOWCASE PANEL (Enterprise Core Demo) */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-bold text-slate-200 tracking-tight flex items-center gap-2">
+              <span>Bằng Chứng Định Danh Đa Hệ Thống (Dual-Token Panel)</span>
+              <span className="text-xs font-mono font-normal text-indigo-400 bg-indigo-950/60 px-2 py-0.5 rounded-full border border-indigo-800/50">
+                Live Memory Inspection
+              </span>
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* 1. Firebase Token Card */}
+            <div className="glass-panel rounded-2xl border border-indigo-500/30 overflow-hidden shadow-xl glow-indigo flex flex-col justify-between">
               <div>
-                <h3 className="text-xl leading-6 font-medium text-gray-900">{user.displayName}</h3>
-                <p className="mt-1 max-w-2xl text-sm text-gray-500">{user.email}</p>
-                <p className="text-xs text-gray-400 mt-1">UID: {user.uid}</p>
-              </div>
-            </div>
-            <div className="mt-5 md:mt-0">
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                Đăng xuất
-              </button>
-            </div>
-          </div>
-        </div>
+                <div className="p-4 sm:p-5 border-b border-indigo-500/20 bg-indigo-950/30 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="h-3 w-3 rounded-full bg-indigo-400 animate-pulse"></span>
+                    <div>
+                      <h4 className="text-sm font-bold text-indigo-200">Firebase ID Token</h4>
+                      <p className="text-[11px] text-indigo-400/80 font-mono">Thuật toán: RS256 (Asymmetric RSA)</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 font-mono text-[11px] border border-indigo-500/30">
+                    TTL: 3600s (1h)
+                  </span>
+                </div>
 
-        {/* JWT Token Card */}
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="px-4 py-5 border-b border-gray-200 sm:px-6 flex justify-between items-center">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Firebase ID Token (JWT)</h3>
-            <div className="space-x-3">
-              <button
-                onClick={copyToClipboard}
-                className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
-              >
-                Copy
-              </button>
-              <a
-                href={`https://jwt.io?token=${token}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-3 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
-              >
-                Giải mã trên jwt.io
-              </a>
-            </div>
-          </div>
-          <div className="px-4 py-5 sm:p-6">
-            <div className="bg-gray-50 p-4 rounded-md overflow-x-auto">
-              <code className="text-sm text-gray-800 break-all">
-                {token ? `${token.substring(0, 100)}...${token.substring(token.length - 20)}` : 'Đang lấy token...'}
-              </code>
-            </div>
-          </div>
-        </div>
+                <div className="p-5 space-y-4">
+                  <div className="bg-slate-950/90 rounded-xl p-3.5 border border-slate-800 font-mono text-xs text-indigo-300/90 break-all select-all max-h-28 overflow-y-auto leading-relaxed shadow-inner">
+                    {token || 'Đang lấy token...'}
+                  </div>
 
-        {/* OAuth2 Cross-System Token Card (Quân's Backend) */}
-        {quanAuth ? (
-          <div className="bg-white overflow-hidden shadow rounded-lg border-2 border-purple-200">
-            <div className="px-4 py-5 border-b border-purple-100 sm:px-6 flex justify-between items-center bg-purple-50">
-              <div className="flex items-center space-x-2">
-                <span className="flex h-3 w-3 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-                </span>
-                <h3 className="text-lg leading-6 font-semibold text-purple-900">
-                  Đồng Bộ Đa Hệ Thống: OAuth2 Token
-                </h3>
+                  <div className="text-[11px] text-slate-400 space-y-1 font-mono">
+                    <div className="flex justify-between">
+                      <span>Issuer:</span>
+                      <span className="text-slate-300">securetoken.google.com/soa-firebase-demo-31877</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Verification:</span>
+                      <span className="text-emerald-400">Offline JWKS Public Key Cache</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="space-x-3 flex items-center">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-300 font-mono">
-                  {quanAuth.role || 'ROLE_PERSONAL'}
-                </span>
+
+              <div className="p-4 border-t border-slate-800/80 bg-slate-900/40 flex items-center justify-between">
                 <button
-                  onClick={copyQuanToken}
-                  className="inline-flex items-center px-3 py-1.5 border border-purple-300 shadow-sm text-xs font-medium rounded text-purple-700 bg-white hover:bg-purple-50 focus:outline-none"
+                  onClick={() => copyToClipboard('firebase')}
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-all flex items-center gap-1.5"
                 >
-                  Copy
+                  <span>{copyStatus.firebase ? '✓ Đã sao chép' : '📋 Copy Token'}</span>
                 </button>
                 <a
-                  href={`https://jwt.io?token=${quanAuth.token}`}
+                  href={`https://jwt.io?token=${token}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center px-3 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded text-white bg-purple-600 hover:bg-purple-700 focus:outline-none"
+                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-md shadow-indigo-600/30 transition-all flex items-center gap-1"
                 >
-                  Giải mã trên jwt.io
+                  <span>Mổ xẻ trên jwt.io</span>
+                  <span className="text-[10px]">↗</span>
                 </a>
               </div>
             </div>
-            <div className="px-4 py-4 sm:p-6 bg-purple-50/30">
-              <div className="bg-white p-3 rounded-md border border-purple-100 overflow-x-auto mb-2">
-                <code className="text-xs text-purple-900 break-all font-mono">
-                  {quanAuth.token.substring(0, 100)}...{quanAuth.token.substring(quanAuth.token.length - 20)}
-                </code>
+
+            {/* 2. Quân's OAuth2 Token Card */}
+            <div className="glass-panel rounded-2xl border border-purple-500/30 overflow-hidden shadow-xl glow-purple flex flex-col justify-between">
+              <div>
+                <div className="p-4 sm:p-5 border-b border-purple-500/20 bg-purple-950/30 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="h-3 w-3 rounded-full bg-purple-400 animate-pulse"></span>
+                    <div>
+                      <h4 className="text-sm font-bold text-purple-200">OAuth2 Backend Token (Quân)</h4>
+                      <p className="text-[11px] text-purple-400/80 font-mono">Thuật toán: HS384 (HMAC Symmetric)</p>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 font-mono text-[11px] border border-purple-500/30">
+                    TTL: 900s (15m)
+                  </span>
+                </div>
+
+                <div className="p-5 space-y-4">
+                  {quanAuth ? (
+                    <>
+                      <div className="bg-slate-950/90 rounded-xl p-3.5 border border-slate-800 font-mono text-xs text-purple-300/90 break-all select-all max-h-28 overflow-y-auto leading-relaxed shadow-inner">
+                        {quanAuth.token}
+                      </div>
+
+                      <div className="text-[11px] text-slate-400 space-y-1 font-mono">
+                        <div className="flex justify-between">
+                          <span>Quyền hạn (Role):</span>
+                          <span className="text-purple-300 font-semibold">{quanAuth.role || 'ROLE_PERSONAL'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Database Destination:</span>
+                          <span className="text-emerald-400">SQL Server / H2 (google_login_db)</span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="p-6 rounded-xl bg-purple-950/20 border border-dashed border-purple-800/60 text-center">
+                      <p className="text-xs text-purple-300 font-semibold mb-1">Chưa kích hoạt luồng đồng bộ</p>
+                      <p className="text-[11px] text-slate-400">
+                        Đăng xuất và bấm <strong className="text-indigo-400">"Đăng nhập với Google"</strong> để đồng bộ tự động tài khoản sang backend Quân.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-              <p className="text-xs text-purple-600">
-                ✨ <strong>Chứng minh SOA:</strong> Sau 1 cú click Google Sign-In, tài khoản đã được tự động đồng bộ vào SQL Server của Quân và nhận thêm JWT ký bằng <strong>HMAC-SHA384</strong>!
+
+              <div className="p-4 border-t border-slate-800/80 bg-slate-900/40 flex items-center justify-between">
+                {quanAuth ? (
+                  <>
+                    <button
+                      onClick={() => copyToClipboard('quan')}
+                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-all flex items-center gap-1.5"
+                    >
+                      <span>{copyStatus.quan ? '✓ Đã sao chép' : '📋 Copy Token'}</span>
+                    </button>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href="http://localhost:8081/api/users/database-viewer"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-purple-300 border border-purple-700/50 transition-all flex items-center gap-1"
+                      >
+                        <span>Soi DB Quân</span>
+                        <span className="text-[10px]">↗</span>
+                      </a>
+                      <a
+                        href={`https://jwt.io?token=${quanAuth.token}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-semibold text-white shadow-md shadow-purple-600/30 transition-all flex items-center gap-1"
+                      >
+                        <span>Mổ xẻ trên jwt.io</span>
+                        <span className="text-[10px]">↗</span>
+                      </a>
+                    </div>
+                  </>
+                ) : (
+                  <span className="text-[11px] text-slate-500 font-mono">POST /api/auth/google/firebase-token</span>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* INTERACTIVE API TESTING CONSOLE (Mini Postman) */}
+        <section className="glass-panel rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+          <div className="p-4 sm:p-6 border-b border-slate-800 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+            <div>
+              <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+                <span>Interactive API Testing Console</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                  Polyglot Filter Tester
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Gửi Bearer Token trực tiếp từ trình duyệt đến các Microservice khác nhau để kiểm thử tính trung lập của SOA
               </p>
             </div>
           </div>
-        ) : (
-          <div className="bg-purple-50/50 border border-dashed border-purple-200 rounded-lg p-4 text-xs text-purple-700 flex justify-between items-center">
-            <span>
-              🔗 <strong>Đồng bộ OAuth2 (soa-auth-system):</strong> Sẵn sàng nhận Google ID Token để cấp thêm JWT từ Spring Boot của Quân.
-            </span>
-            <span className="text-purple-400 font-mono">POST /api/auth/google/firebase-token</span>
-          </div>
-        )}
 
-        {/* API Testing Section */}
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Kiểm tra API</h3>
-          </div>
-          <div className="px-4 py-5 sm:p-6">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 mb-6">
-              <div className="sm:col-span-3">
-                <label htmlFor="backend" className="block text-sm font-medium text-gray-700">
-                  Backend API URL (hoặc dán link Ngrok HTTPS)
-                </label>
-                <div className="mt-1 flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="text"
-                    id="backend"
-                    className="block w-full px-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm border font-mono"
-                    value={backendUrl}
-                    onChange={(e) => setBackendUrl(e.target.value)}
-                    placeholder="https://xxx.ngrok-free.app hoặc http://localhost:8080"
-                  />
-                  <select
-                    className="px-3 py-2 text-sm border-gray-300 rounded-md shadow-sm border bg-gray-50 text-gray-700 sm:w-56"
-                    onChange={(e) => {
-                      if (e.target.value) setBackendUrl(e.target.value);
-                    }}
-                    value={backendUrl}
-                  >
-                    <option value="http://localhost:8080">Spring Boot (8080)</option>
-                    <option value="http://localhost:8000">FastAPI (8000)</option>
-                    <option value="http://localhost:3000">NodeJS (3000)</option>
-                    <option value={backendUrl}>URL tùy chỉnh / Ngrok</option>
-                  </select>
-                </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  💡 Mẹo: Khi dùng ngrok, bạn chỉ cần copy link HTTPS dán thẳng vào ô trên để gọi API mà không cần build lại web!
-                </p>
+          <div className="p-4 sm:p-6 space-y-6">
+            
+            {/* Target URL Selector */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">
+                Target Backend Gateway URL
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  value={backendUrl}
+                  onChange={(e) => setBackendUrl(e.target.value)}
+                  placeholder="http://localhost:8080 hoặc link ngrok HTTPS"
+                  className="flex-1 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-mono text-indigo-300 border border-slate-800 focus:border-indigo-500 focus:outline-none shadow-inner"
+                />
+                <select
+                  value={backendUrl}
+                  onChange={(e) => setBackendUrl(e.target.value)}
+                  className="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-semibold text-slate-300 border border-slate-700 focus:border-indigo-500 focus:outline-none sm:w-60"
+                >
+                  <option value="http://localhost:8000">FastAPI (Python :8000)</option>
+                  <option value="http://localhost:8080">Spring Boot (Java :8080)</option>
+                  <option value="http://localhost:3000">NodeJS Express (:3000)</option>
+                  <option value="http://localhost:8081">Backend Quân OAuth2 (:8081)</option>
+                  <option value={backendUrl}>URL tùy biến / Ngrok Tunnel</option>
+                </select>
               </div>
             </div>
 
-            <div className="flex space-x-4 mb-6">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={handleCallPublic}
                 disabled={loading}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700 shadow-md transition-all active:scale-[0.98] disabled:opacity-50 flex items-center gap-2"
               >
-                Gọi Public API
+                <span>GET /api/public</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-900 text-slate-400 font-mono">No Auth</span>
               </button>
+
               <button
                 onClick={handleCallProtected}
                 disabled={loading}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-95 text-xs font-bold text-white shadow-lg shadow-indigo-600/30 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center gap-2"
               >
-                Gọi Protected API
+                {loading ? (
+                  <span className="animate-pulse">Đang gửi gói tin Bearer...</span>
+                ) : (
+                  <>
+                    <span>GET /api/protected</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-black/30 text-indigo-200 font-mono">Bearer Token</span>
+                  </>
+                )}
               </button>
             </div>
 
-            {/* API Response Display */}
+            {/* Response Console Display */}
             {apiResponse && (
-              <div className={`mt-4 rounded-md p-4 ${apiResponse.type === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-                <h4 className={`text-sm font-medium ${apiResponse.type === 'success' ? 'text-green-800' : 'text-red-800'}`}>
-                  Kết quả:
-                </h4>
-                <div className="mt-2 text-sm">
-                  <pre className={`whitespace-pre-wrap p-2 rounded ${apiResponse.type === 'success' ? 'bg-green-100 text-green-900' : 'bg-red-100 text-red-900'}`}>
+              <div className="rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-inner">
+                <div className="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2.5 w-2.5 rounded-full ${apiResponse.type === 'success' ? 'bg-emerald-400' : 'bg-rose-400'}`}></span>
+                    <span className="font-bold text-slate-300">HTTP Response:</span>
+                    <span className={`px-2 py-0.5 rounded font-bold ${apiResponse.type === 'success' ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800' : 'bg-rose-950/80 text-rose-400 border border-rose-800'}`}>
+                      {apiResponse.status} {apiResponse.type === 'success' ? 'OK' : 'Error'}
+                    </span>
+                  </div>
+                  <span className="text-slate-500 text-[11px]">Format: JSON</span>
+                </div>
+                <div className="p-4 max-h-80 overflow-y-auto">
+                  <pre className="font-mono text-xs text-indigo-200/90 whitespace-pre-wrap leading-relaxed">
                     {JSON.stringify(apiResponse.data, null, 2)}
                   </pre>
                 </div>
               </div>
             )}
+
           </div>
-        </div>
+        </section>
 
       </div>
     </div>

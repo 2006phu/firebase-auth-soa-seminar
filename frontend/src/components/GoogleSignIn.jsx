@@ -3,7 +3,7 @@ import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 import { syncToOAuth2Backend } from '../services/api';
 
-const GoogleSignIn = () => {
+const GoogleSignIn = ({ onError }) => {
   const navigate = useNavigate();
   const provider = new GoogleAuthProvider();
 
@@ -12,11 +12,9 @@ const GoogleSignIn = () => {
       const result = await signInWithPopup(auth, provider);
 
       // Lấy Google ID Token gốc (JWT do GOOGLE ký bằng RSA-256)
-      // Đây là thứ mà backend OAuth2 của Quân có thể verify trực tiếp
       const credential = GoogleAuthProvider.credentialFromResult(result);
       if (credential && credential.idToken) {
-        // Gửi sang backend OAuth2 của Quân để đồng bộ tài khoản vào SQL Server
-        // Không await để không block luồng đăng nhập Firebase
+        // Gửi sang backend OAuth2 của Quân để đồng bộ tài khoản vào SQL Server/H2
         syncToOAuth2Backend(credential.idToken).catch((err) =>
           console.warn('OAuth2 sync skipped:', err.message)
         );
@@ -25,7 +23,9 @@ const GoogleSignIn = () => {
       navigate('/dashboard');
     } catch (error) {
       console.error('Lỗi khi đăng nhập bằng Google:', error);
-      alert('Đăng nhập Google thất bại');
+      if (onError) {
+        onError('Đăng nhập Google không thành công hoặc cửa sổ popup đã bị đóng.');
+      }
     }
   };
 
@@ -33,9 +33,9 @@ const GoogleSignIn = () => {
     <button
       type="button"
       onClick={handleGoogleSignIn}
-      className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent"
+      className="group relative flex w-full items-center justify-center gap-3 rounded-xl bg-slate-900/90 px-4 py-3 text-sm font-semibold text-slate-200 border border-slate-700/80 hover:bg-slate-800 hover:text-white hover:border-indigo-500/50 shadow-lg shadow-black/20 transition-all duration-200 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
     >
-      <svg className="h-5 w-5" viewBox="0 0 24 24">
+      <svg className="h-5 w-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
         <path
           d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
           fill="#4285F4"
@@ -53,7 +53,10 @@ const GoogleSignIn = () => {
           fill="#EA4335"
         />
       </svg>
-      <span className="text-sm font-semibold leading-6">Đăng nhập với Google</span>
+      <span>Đăng nhập an toàn với Google</span>
+      <span className="ml-auto inline-flex items-center rounded-md bg-indigo-500/10 px-2 py-0.5 text-xs font-medium text-indigo-300 border border-indigo-500/20">
+        OAuth 2.0
+      </span>
     </button>
   );
 };
