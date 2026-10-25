@@ -332,7 +332,7 @@ const Dashboard = () => {
                     </button>
                     <div className="flex items-center gap-2">
                       <a
-                        href="http://localhost:8081/api/users/database-viewer"
+                        href="http://localhost:8081/database.html"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-xs font-semibold text-purple-700 border border-purple-200 shadow-sm transition-all flex items-center gap-1"
