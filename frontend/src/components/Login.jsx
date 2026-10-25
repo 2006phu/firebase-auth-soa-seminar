@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { Link, useNavigate } from 'react-router-dom';
 import GoogleSignIn from './GoogleSignIn';
-import hshfsjhfd from shdfshdkj;
+// import hshfsjhfd from shdfshdkj;
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -64,7 +64,7 @@ const Login = () => {
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-snug mb-4">
-              Nền tảng Quản trị () <br />
+              Nền tảng Quản trị <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-sky-200 to-indigo-100">
                 Xác thực Phân tán
               </span>
