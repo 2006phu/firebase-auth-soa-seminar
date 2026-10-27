@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # Cho phép chạy thủ công từ GitHub UI (tiện khi cập nhật URL ngrok)
+  workflow_dispatch: # Cho phép chạy thủ công từ GitHub UI
 
 jobs:
   build_and_deploy:
@@ -26,16 +26,45 @@ jobs:
         working-directory: frontend
 
       - name: 🏗️ Build frontend
-        run: npm run build
+        run: |
+          cat << 'EOF' > parse_env.cjs
+          const fs = require('fs');
+          try {
+            const rawConfig = process.env.FIREBASE_CONFIG || '{}';
+            
+            // Đọc an toàn cả JS Object lẫn JSON chuẩn
+            const config = Function('return (' + rawConfig + ')')();
+            
+            const envContent = [
+              `VITE_FIREBASE_API_KEY=${config.apiKey || ''}`,
+              `VITE_FIREBASE_AUTH_DOMAIN=${config.authDomain || ''}`,
+              `VITE_FIREBASE_PROJECT_ID=${config.projectId || ''}`,
+              `VITE_FIREBASE_STORAGE_BUCKET=${config.storageBucket || ''}`,
+              `VITE_FIREBASE_MESSAGING_SENDER_ID=${config.messagingSenderId || ''}`,
+              `VITE_FIREBASE_APP_ID=${config.appId || ''}`,
+              `VITE_API_BASE_URL=${process.env.VITE_API_BASE_URL || ''}`
+            ].join('\n');
+
+            fs.writeFileSync('.env', envContent);
+            console.log('✅ Đã tạo file .env thành công!');
+          } catch (err) {
+            console.error('❌ Lỗi khi trích xuất dữ liệu FIREBASE_CONFIG_JSON:', err.message);
+            process.exit(1);
+          }
+          EOF
+
+          node parse_env.cjs
+          rm parse_env.cjs
+          npm run build
         working-directory: frontend
         env:
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG_JSON }}
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
 
       - name: 🚀 Deploy to Firebase Hosting
-        run: npx firebase-tools deploy --only hosting --token "${{ secrets.FIREBASE_TOKEN }}" --project soa-firebase-demo-31877
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: live
+          projectId: fir-cicd-6aff2
